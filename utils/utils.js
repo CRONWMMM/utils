@@ -5,7 +5,7 @@
  * version: v0.0.1
  * date: 2017.9.22
  *
- * -------------------------------------------------------------------------------------------------------------
+ * ------------------------------------------------------------------------------------------------------------------------------
  *
  * version: v0.0.2
  * date: 2017.12.24
@@ -47,6 +47,67 @@
 	  }
 	  return '';
 	};
+
+
+
+
+
+// localStorage ==================================================================================================================
+	
+	/**
+	 * 设置localStorage
+	 * @param key   {string} key
+	 * @param value {string} value
+	 */
+	function setStorage (key, value) {
+		if (!window.localStorage) 
+			throw new Error('大兄弟，你的浏览器不支持localStorage'); 
+		var storage = window.localStorage,
+			key = typeof key === 'string' ? key : key.toString(),
+			value = typeof value === 'string' ? value : JSON.stringify(value);
+		storage.setItem(key, value);
+	}
+
+
+	/**
+	 * 获取localStorage
+	 * @param key   {string} key
+	 */
+	function getStorage (key) {
+		if (!window.localStorage) 
+			throw new Error('大兄弟，你的浏览器不支持localStorage'); 
+		var storage = window.localStorage,
+			key = typeof key === 'string' ? key : key.toString(),
+			data = storage.getItem(key);
+		return !!data ? JSON.parse(data) : null;
+	}
+
+
+
+	/**
+	 * 移除所有localStorage
+	 */
+	function removeAllStorage () {
+		if (!window.localStorage) 
+			throw new Error('大兄弟，你的浏览器不支持localStorage'); 
+		window.localStorage.clear();
+	}
+
+
+	/**
+	 * 移除单个localStorage
+	 * @param key   {string} key
+	 */
+	function getStorage (key) {
+		if (!window.localStorage) 
+			throw new Error('大兄弟，你的浏览器不支持localStorage'); 
+		var storage = window.localStorage,
+			key = typeof key === 'string' ? key : key.toString();
+		storage.removeItem(key);
+	}
+
+
+
 
 
 
