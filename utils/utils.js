@@ -98,7 +98,7 @@
 	 * 移除单个localStorage
 	 * @param key   {string} key
 	 */
-	function getStorage (key) {
+	function removeStorage (key) {
 		if (!window.localStorage) 
 			throw new Error('大兄弟，你的浏览器不支持localStorage'); 
 		var storage = window.localStorage,
