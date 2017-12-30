@@ -131,6 +131,22 @@
 
 
 
+	/**
+	 * queryString和url进行拼接
+	 * @param data {object} 需要传递的键值对序列
+	 * @returns {string} 处理完毕的queryString
+	 *  类似：a=1&b=2&c=3
+	 */
+	function setUrlParam(data){
+		var url = '';
+		for (var k in data) {
+			var value = data[k] !== undefined ? data[k] : ''
+			url += '&' + k + '=' + encodeURIComponent(value)
+		}
+		return url ? url.substring(1) : '';
+	}
+
+
 
 // copy==========================================================================================================================
 
