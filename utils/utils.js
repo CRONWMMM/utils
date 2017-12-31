@@ -730,8 +730,52 @@ var floatTool = function() {
 
 
 
+/* DOM 操作 ---------------------------------------------------------------------------------------------------------- */
+	
+	/*
+	 * 判断元素是否有某个className
+	 * @param el {object} 目标元素
+	 * @param className {string} 需要检测的className
+	 * @return Boolean 
+	 */
+	function hasClass (el, className) {
+		var reg = new RegExp('(^|\\s)' + className + '(\\s|$)');
+		return reg.test(el.className)
+	}
 
 
+	/*
+	 * 为选定的元素添加className
+	 * @param el {object} 目标元素
+	 * @param className {string} 需要添加的className
+	 * @return Null 
+	 */
+	function addClass (el, className) {
+		if (hasClass(el, className)) return;
+		var newClass = el.className.split(' ');
+		newClass.push(className);
+		el.className = newClass.join(' ');
+	}
+
+	/*
+	 * 获取元素相对页面的offset
+	 * @param el {object} 目标元素
+	 * @return object 包括offsetLeft和offsetTop
+	 */
+	function getOffset (el) {
+		var x = 0,
+			y = 0,
+			parent = null;
+		while (parent = el.offsetParent) {
+			x += el.offsetLeft;
+			y += el.offsetTop;
+			el = p;
+		}
+		return {
+			x: x,
+			y: y
+		}
+	}
 
 
 
