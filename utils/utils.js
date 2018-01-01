@@ -757,6 +757,26 @@ var floatTool = function() {
 		el.className = newClass.join(' ');
 	}
 
+
+	/*
+	 * 为选定的元素删除className
+	 * @param el {object} 目标元素
+	 * @param className {string} 需要删除的className
+	 * @return Null
+	 */
+	function removeClass (el, className) {
+		if (!hasClass(el, className)) return;
+		var classArr = el.className.split(' ');
+		classArr.forEach(function (item, index, arr) {
+			if (item === className) {
+				arr.splice(index, 1);
+			}
+		});
+		var newClassName = classArr.join(' ');
+		el.className = newClassName;
+	}
+
+
 	/*
 	 * 获取元素相对页面的offset
 	 * @param el {object} 目标元素
@@ -776,6 +796,17 @@ var floatTool = function() {
 			y: y
 		}
 	}
+
+
+
+
+
+/* 表单验证 --------------------------------------------------------------------------------------------------------- */
+	var formValidation = (function () {
+
+		
+
+	})();
 
 
 
