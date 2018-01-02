@@ -15,6 +15,33 @@
 
 'use strict';
 
+
+
+/* base ------------------------------------------------------------------------------------------------------------------------ */
+	/**
+	 * 检测传入的参数类型
+	 * @param obj {All}	需要进行参数检测的对象
+	 * @return {String} 所属类型字符串
+	 */
+	function typeof (obj) {
+		const toString = Object.prototype.toString;
+		const map = {
+			'[object Boolean]'	 : 'boolean',
+			'[object Number]' 	 : 'number',
+			'[object String]' 	 : 'string',
+			'[object Function]'  : 'function',
+			'[object Array]' 	 : 'array',
+			'[object Date]' 	 : 'date',
+			'[object RegExp]'	 : 'regExp',
+			'[object Undefined]' : 'undefined',
+			'[object Null]' 	 : 'null',
+			'[object Object]' 	 : 'object'
+		};
+		return map[toString.call(obj)];
+	}
+
+
+
 // cookies =======================================================================================================================
 	
 	/**
