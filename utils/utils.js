@@ -23,7 +23,7 @@
 	 * @param obj {All}	需要进行参数检测的对象
 	 * @return {String} 所属类型字符串
 	 */
-	function typeof (obj) {
+	function typeOf (obj) {
 		const toString = Object.prototype.toString;
 		const map = {
 			'[object Boolean]'	 : 'boolean',
@@ -42,7 +42,79 @@
 
 
 
-// cookies =======================================================================================================================
+	/**
+	 * 拷贝函数
+	 * @param target {object} 需要拷贝的目标对象
+	 * @param deep {boolean} 是否执行深拷贝
+	 * @returns {object} 拷贝完成的对象
+	 */
+	function extend(target,deep){
+		var argslength,target,copy,deep,i,len;
+
+		argslength = arguments.length;
+
+		target = argslength===0 ? {} : target;
+
+		// 不传deep默认false，执行浅拷贝
+		deep = argslength>1 ? deep : false;
+		deep = typeof deep === "boolean" ? deep : false;
+
+		if(Array.isArray(target)){						// 数组拷贝
+			copy = [];
+			for(i=0,len=target.length;i<len;i++){
+				if(deep){
+					copy[i] = extend(target[i],deep);
+				}else{
+					copy[i] = target[i];
+				}
+			}
+		}else if(typeof target === 'object'){			// 对象拷贝
+			copy = {};
+			for(i in target){							// 这块需要做尾调用优化
+				if(deep){
+					copy[i] = extend(target[i],deep);
+				}else{
+					copy[i] = target[i];
+				}
+			}
+		}else{
+			copy = target;								// 这边函数就没判断，默认引用原有函数
+		}
+		return copy;
+	}
+
+
+
+	/**
+	 * 深拷贝函数
+	 * @param target {object} 需要拷贝的目标对象
+	 * @returns {object} 拷贝完成的新对象
+	 */
+	 function deepCopy(target) {
+	 	const flag = typeOf(target);
+	 	let copy;
+
+	 	if (flag === 'array') {
+	 		copy = [];
+	 		for (var i = 0, len = target.length; i < len; i++) {
+	 			copy.push(deepCopy(target[i]));
+	 		}
+	 	}
+	 	else if (flag === 'object') {
+	 		copy = {};
+	 		for (var k in target) {
+	 			copy[k] = deepCopy(target[k]);
+	 		}
+	 	}
+	 	else {
+	 		copy = target;
+	 	}
+	 	return copy;
+	 }
+
+
+
+/* cookie 操作 ------------------------------------------------------------------------------------------------------------- */
 	
 	/**
 	 * 设置cookie/清除cookie
@@ -79,7 +151,7 @@
 
 
 
-// localStorage ==================================================================================================================
+/* localStorage 操作 ----------------------------------------------------------------------------------------------------- */
 	
 	/**
 	 * 设置localStorage
@@ -139,7 +211,7 @@
 
 
 
-// Url ===========================================================================================================================
+/* Url 操作 ------------------------------------------------------------------------------------------------------------- */
 
 	/**
 	 * 获取网页地址栏url的参数
@@ -173,50 +245,6 @@
 		return url ? url.substring(1) : '';
 	}
 
-
-
-// copy==========================================================================================================================
-
-	/**
-	 * 拷贝函数
-	 * @param target {object} 需要拷贝的目标对象
-	 * @param deep {boolean} 是否执行深拷贝
-	 * @returns {object} 拷贝完成的对象
-	 */
-	function extend(target,deep){
-		var argslength,target,copy,deep,i,len;
-
-		argslength = arguments.length;
-
-		target = argslength===0 ? {} : target;
-
-		// 不传deep默认false，执行浅拷贝
-		deep = argslength>1 ? deep : false;
-		deep = typeof deep === "boolean" ? deep : false;
-
-		if(Array.isArray(target)){						// 数组拷贝
-			copy = [];
-			for(i=0,len=target.length;i<len;i++){
-				if(deep){
-					copy[i] = extend(target[i],deep);
-				}else{
-					copy[i] = target[i];
-				}
-			}
-		}else if(typeof target === 'object'){			// 对象拷贝
-			copy = {};
-			for(i in target){							// 这块需要做尾调用优化
-				if(deep){
-					copy[i] = extend(target[i],deep);
-				}else{
-					copy[i] = target[i];
-				}
-			}
-		}else{
-			copy = target;								// 这边函数就没判断，默认引用原有函数
-		}
-		return copy;
-	}
 
 
 
@@ -757,6 +785,21 @@ var floatTool = function() {
 
 
 
+/* 字符串操作 ---------------------------------------------------------------------------------------------------------- */
+	/**
+	 * 首字母大写
+	 * @param str {string} 需要处理的字符串
+	 * @return {String} 处理后的字符串
+	 */
+	function firstUpperCase(str) {
+		let string = str.toString();
+		return string[0].toUpperCase() + string.slice(1);
+	}
+
+
+
+
+
 /* DOM 操作 ---------------------------------------------------------------------------------------------------------- */
 	
 	/*
@@ -836,6 +879,114 @@ var floatTool = function() {
 	})();
 
 
+/*
+// 检测输入类
+    	checkInput = {
+						checkName : {
+							errorInfo : "",
+							index : 0,
+							checkFunc : function(input,callback){
+								var input = checkInput._trim(input),
+									empty = false;
+								input = checkInput._htmlFilter(input);
+								empty = checkInput._checkEmpty(input);
+								if(empty){
+									this.errorInfo = "请输入姓名";
+									return;
+								}else{
+									this.errorInfo = "";
+							    	callback(input);
+								}
+							}
+						},
+						checkPhone : {
+							errorInfo : "",
+							index : 1,
+							checkFunc : function(input,callback){
+								var input = checkInput._trim(input);
+								input = checkInput._htmlFilter(input);
+							    if(!(/^1\d{10}$/.test(input))){
+							    	this.errorInfo = "请输入正确的手机号";
+							    	return;
+							    }else{
+							    	this.errorInfo = "";
+							    	callback(input);
+							    }
+							},
+						},
+						checkEmail : {
+							errorInfo : "",
+							index : 2,
+							checkFunc : function(input,callback){
+								var input = checkInput._trim(input),
+									empty = true;
+								input = checkInput._htmlFilter(input);
+								empty = checkInput._checkEmpty(input);
+								if(empty){
+									this.errorInfo = "";
+								}else{
+									if(!(/^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/.test(input))){
+										this.errorInfo = "请输入正确的邮箱";
+										return;
+									}else{
+										this.errorInfo = "";
+										callback(input);
+									}
+								}
+							},
+						},
+						checkCompany : {
+							errorInfo : "",
+							index : 3,
+							checkFunc : function(input,callback){
+								var input = checkInput._trim(input),
+									empty = true;
+								input = checkInput._htmlFilter(input);
+								callback(input);
+							},
+						},
+						checkOccupation : {
+							errorInfo : "",
+							index : 4,
+							checkFunc : function(input,callback){
+								var input = checkInput._trim(input);
+								input = checkInput._htmlFilter(input);
+								callback(input);
+							},
+						},
+
+						// 判空
+						_checkEmpty : function(input){
+							var input = checkInput._trim(input);
+							if(input.length > 0) return false;
+							return true;
+						},
+						// 去空
+						_trim : function(input){
+							var input = input.toString();
+							if(input.trim)input = input.trim();
+							input = input.replace(/\s/g,"");
+							return input;
+						},
+						// 过滤非法字符
+						_htmlFilter : function(input){
+							var input = input;
+							input = input.replace(/[\[\]<>\?]/g,"");
+							return input;
+						},
+						// 判断能否提交
+						_canSendOrNot : function(callback){
+							for(i in this){
+								if(i.toString()[0] === "_")continue;
+								if(this[i].errorInfo.length > 0){
+									if(callback)callback(this[i].index,this[i].errorInfo);
+									return false;
+								}
+							}
+							return true;
+						}
+					},
+*/
 
 
 
