@@ -494,6 +494,33 @@ function filterData(target,field,arr){
 }
 
 
+/* 数组操作 -------------------------------------------------------------------------------------- */
+	
+	/**
+	 * 按照英文字母对数组排序【有bug】
+	 * @param arr Array 需要进行排序操作的数组对象
+	 * @param [key] String 如果传入的话必须是作为Key值的字符串
+	 * 告诉程序需要按照当前对象的哪个key对应的value值排序
+	 *
+	 * @param flag Boolean 是否倒序，默认false按正序排列，设置为true则倒序
+	 * @return Array 返回排序后的数组对象
+	 * 
+	 */
+	function sortByInitials(arr, key, flag) {
+		return arr.sort(function (a, b) {
+			console.log(a, b)
+			var type = typeOf(key),
+				regStr = 'boolean undefined',
+				isReverse = type.indexOf(regStr) > 0 ? key : !!flag,
+				prevVal = type.indexOf(regStr) > 0 ? a.toUpperCase() : a[key].toUpperCase(),
+				nextVal = type.indexOf(regStr) > 0 ? b.toUpperCase() : b[key].toUpperCase();
+			return !flag ? prevVal.charCodeAt() - nextVal.charCodeAt() : 
+						   nextVal.charCodeAt() - prevVal.charCodeAt() 
+		})
+	}
+
+
+
 // 数组扁平化========================================================================================================================
 	/**拉伸数组
 	 * @param arr Array 需要操作的数组对象
