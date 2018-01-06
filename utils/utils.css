@@ -1,0 +1,76 @@
+
+
+/* utils */
+
+
+/* 定位 ---------------------------------------------------------------------- */
+
+.trans-center{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: transLate(-50%, -50%);
+    -webkit-transform: transLate(-50%, -50%);
+    -moz-transform: transLate(-50%, -50%);
+    -o-transform: transLate(-50%, -50%);
+    -ms-transform: transLate(-50%, -50%);
+}
+
+.abs-full,.fixed-full{
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+.abs-full{position: absolute;}
+.fixed-full{position: fixed;}
+
+
+
+/* 背景 ------------------------------------------------------------------------- */
+
+.bg{
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center center;
+}
+
+
+
+
+/* 浮动 -------------------------------------------------------------------------- */
+
+.clear-f::after{
+    content: '';
+    display: block;
+    height: 0;
+    visibility: hidden;
+    clear: both;
+}
+
+
+
+
+/* 字体 --------------------------------------------------------------------------- */
+
+.ellipsis{
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+}
+
+
+
+/* 显隐 ---------------------------------------------------------------------------- */
+
+.hide{
+    display: none!important;
+}
+
+
+
+
+
+
+
+
