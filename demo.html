@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Demo</title>
+	<link rel="stylesheet" href="utils/css/reset.css">
+	<link rel="stylesheet" href="utils/css/utils.css">
+	<style>
+		body{
+			padding: 20px;
+			box-sizing: border-box;
+		}
+		.BWImg{
+			width: 500px;
+		}
+		h2{
+			font-size: 50px;
+		}
+	</style>
+</head>
+<body class="topShadow fontSmoothing">
+	<img class="BWImg colorFilter" src="images/20170202180736_yTmVu.jpeg" alt="">
+	<p>CSS滤色</p>
+	<br>
+	<div class="arrow-up"></div><span>上箭头</span>
+	<br>
+	<br>
+	<div class="arrow-down"></div><span>下箭头</span>
+	<br>
+	<br>
+	<div class="arrow-left"></div><span>左箭头</span>
+	<br>
+	<br>
+	<div class="arrow-right"></div><span>右箭头</span>
+	<br>
+	<br>
+	<button onclick="alert('hello')">正常执行鼠标点击事件</button>
+	<button class="EvtDisabled" onclick="alert('hello')">被CSS3禁用事件</button>
+	<br>
+	<br>
+	<h2 class="textBlur">Hello! This is blur text.</h2>
+	<script src="utils/utils.js"></script>
+</body>
+</html>
