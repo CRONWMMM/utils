@@ -248,7 +248,6 @@
 
 
 
-// 倒计时函数==================================================================================================================
 	
 	/**
 	 * 倒计时函数
@@ -285,8 +284,9 @@
 
 
 
-// 自定义事件===================================================================================================================
-// 需要完善，用单例模式改写
+	/**
+	 * 自定义事件，仍需完善( 尝试使用单例模式 )
+	 */
 	function EventTarget(){
 		if(!this.handles) this.handles = {};
 	}
@@ -336,115 +336,204 @@
 
 
 
-
-// 辅助绑定函数===================================================================================================================
-function bind(fn,obj){
-	return function(){
-		return fn.apply(obj,arguments);
+	/**
+	 * 辅助绑定函数
+	 * @param  {Function} fn  [description]
+	 * @param  {[type]}   obj [description]
+	 * @return {[type]}       [description]
+	 */
+	function bind(fn,obj){
+		return function(){
+			return fn.apply(obj,arguments);
+		}
 	}
-}
 
 
 
+	/**
+	 * cavas图片压缩
+	 * @param  {[type]}   file     [description]
+	 * @param  {Function} callback [description]
+	 * @return {[type]}            [description]
+	 */
+	function imgResize(file,callback){
+		var fileReader = new FileReader();
+		fileReader.onload = function(){
+		    var IMG = new Image();
+		    IMG.src = this.result;
+		    IMG.onload = function(){
+		      var w = this.naturalWidth, h = this.naturalHeight, resizeW = 0, resizeH = 0;
+		      // maxSize 是压缩的设置，设置图片的最大宽度和最大高度，等比缩放，level是报错的质量，数值越小质量越低
+		      var maxSize = {
+		        width: 500,
+		        height: 500,
+		        level: 0.6
+		      };
+		      if(w > maxSize.width || h > maxSize.height){
+		        var multiple = Math.max(w / maxSize.width, h / maxSize.height);
+		        resizeW = w / multiple;
+		        resizeH = h / multiple;
+		      } else {
+		        // 如果图片尺寸小于最大限制，则不压缩直接上传
+		        return callback(IMG)
+		      }
+		      var canvas = document.createElement('canvas'),
+		      ctx = canvas.getContext('2d');
+		      if(window.navigator.userAgent.indexOf('iPhone') > 0){
+		        canvas.width = resizeH;
+		        canvas.height = resizeW;
+		        ctx.rotate(90 * Math.PI / 180);
+		        ctx.drawImage(IMG, 0, -resizeH, resizeW, resizeH);
+		      }else{
+		        canvas.width = resizeW;
+		        canvas.height = resizeH;
+		        ctx.drawImage(IMG, 0, 0, resizeW, resizeH);
+		      }
+		      var base64 = canvas.toDataURL('image/jpeg', maxSize.level);
+		      convertBlob(window.atob(base64.split(',')[1]), callback);
+		    }
+		  };
+		  fileReader.readAsDataURL(file);
+	}
 
-// cavas图片压缩===================================================================================================================
-function imgResize(file,callback){
-	var fileReader = new FileReader();
-	fileReader.onload = function(){
-	    var IMG = new Image();
-	    IMG.src = this.result;
-	    IMG.onload = function(){
-	      var w = this.naturalWidth, h = this.naturalHeight, resizeW = 0, resizeH = 0;
-	      // maxSize 是压缩的设置，设置图片的最大宽度和最大高度，等比缩放，level是报错的质量，数值越小质量越低
-	      var maxSize = {
-	        width: 500,
-	        height: 500,
-	        level: 0.6
-	      };
-	      if(w > maxSize.width || h > maxSize.height){
-	        var multiple = Math.max(w / maxSize.width, h / maxSize.height);
-	        resizeW = w / multiple;
-	        resizeH = h / multiple;
-	      } else {
-	        // 如果图片尺寸小于最大限制，则不压缩直接上传
-	        return callback(IMG)
-	      }
-	      var canvas = document.createElement('canvas'),
-	      ctx = canvas.getContext('2d');
-	      if(window.navigator.userAgent.indexOf('iPhone') > 0){
-	        canvas.width = resizeH;
-	        canvas.height = resizeW;
-	        ctx.rotate(90 * Math.PI / 180);
-	        ctx.drawImage(IMG, 0, -resizeH, resizeW, resizeH);
-	      }else{
-	        canvas.width = resizeW;
-	        canvas.height = resizeH;
-	        ctx.drawImage(IMG, 0, 0, resizeW, resizeH);
-	      }
-	      var base64 = canvas.toDataURL('image/jpeg', maxSize.level);
-	      convertBlob(window.atob(base64.split(',')[1]), callback);
+	/**
+	 * base64转换二进制
+	 * @param  {[type]}   base64   [description]
+	 * @param  {Function} callback [description]
+	 * @return {[type]}            [description]
+	 */
+	function convertBlob(base64, callback){
+	  var buffer = new ArrayBuffer(base64.length);
+	  var ubuffer = new Uint8Array(buffer);
+	  for (var i = 0; i < base64.length; i++) {
+	    ubuffer[i] = base64.charCodeAt(i)
+	  }
+	  var blob;
+	  // android设备不支持Blob构造函数，用try catch
+	  try {
+	    blob = new Blob([buffer], {type: 'image/jpg'});
+	  } catch (e) {
+	    window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder;
+	    if(e.name === 'TypeError' && window.BlobBuilder){
+	      var blobBuilder = new BlobBuilder();
+	      blobBuilder.append(buffer);
+	      blob = blobBuilder.getBlob('image/jpg');
 	    }
-	  };
-	  fileReader.readAsDataURL(file);
-}
-
-// base64转换二进制
-function convertBlob(base64, callback){
-  var buffer = new ArrayBuffer(base64.length);
-  var ubuffer = new Uint8Array(buffer);
-  for (var i = 0; i < base64.length; i++) {
-    ubuffer[i] = base64.charCodeAt(i)
-  }
-  var blob;
-  // android设备不支持Blob构造函数，用try catch
-  try {
-    blob = new Blob([buffer], {type: 'image/jpg'});
-  } catch (e) {
-    window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder;
-    if(e.name === 'TypeError' && window.BlobBuilder){
-      var blobBuilder = new BlobBuilder();
-      blobBuilder.append(buffer);
-      blob = blobBuilder.getBlob('image/jpg');
-    }
-  }
-  callback(blob);
-}
+	  }
+	  callback(blob);
+	}
 
 
 
 
-// 判空函数==================================================================================================================
 	
 	/**
 	 * 判空函数
 	 * @param  {obj/arr/str}  检测对象
 	 */
-function empty(obj){
-	if(typeof obj === "object"){
-		if(Array.isArray(obj)){			// array
-			return !obj.length>0
-		}else{							// object
-			return !(function(obj){
-				var key,
-					len = 0;
-				for (key in obj){
-					len = ++len;
-				}
-				return len;
-			})(obj)>0;
+	function empty(obj){
+		if(typeof obj === "object"){
+			if(Array.isArray(obj)){			// array
+				return !obj.length>0
+			}else{							// object
+				return !(function(obj){
+					var key,
+						len = 0;
+					for (key in obj){
+						len = ++len;
+					}
+					return len;
+				})(obj)>0;
+			}
+		}else if(typeof obj === "string"){	// string
+			return !(obj.trim()).length>0
+		}else{								// error
+			throw new Error("empty函数接收的参数类型：对象、数组、字符串");
 		}
-	}else if(typeof obj === "string"){	// string
-		return !(obj.trim()).length>0
-	}else{								// error
-		throw new Error("empty函数接收的参数类型：对象、数组、字符串");
 	}
-}
 
 
 
 
-// 筛选数据，用于echarts数据可视化========================================================================================================================
-	/**筛选数据
+/* 数组操作 -------------------------------------------------------------------------------------- */
+	
+	/**
+	 * 按照英文字母对数组排序，代码仍需改进，不是很健壮
+	 * @param arr Array 需要进行排序操作的数组对象
+	 * @param [key] String 如果传入的话必须是作为Key值的字符串
+	 * 告诉程序需要按照当前对象的哪个key对应的value值排序
+	 *
+	 * @param flag Boolean 是否倒序，默认false按正序排列，设置为true则倒序
+	 * @return Array 返回排序后的数组对象
+	 *
+	 *
+	 * Test1:
+	 * var arr = ['D','B','G','e','F','a','z','T','A'];
+	 * sortByInitials(arr);
+	 * 
+	 * Expect1:
+	 * ["a", "A", "B", "D", "e", "F", "G", "T", "z"]
+	 *
+	 *
+	 *
+	 *
+	 * 
+	 * Test2:
+	 * var arr = ['D','B','G','e','F','a','z','T','A'];
+	 * sortByInitials(arr,true);
+	 * 
+	 * Expect2:
+	 * ["z", "T", "G", "F", "e", "D", "B", "a", "A"]
+	 *
+	 *
+	 *
+	 * Test3:
+	 * var arr = [{title: 'A'},{title: 'z'},{title: 'Q'},{title: 'w'},{title: 'v'}];
+	 * sortByInitials(arr);
+	 * 
+	 * Expect3:
+	 * [{title: 'A'},{title: 'Q'},{title: 'v'},{title: 'w'},{title: 'z'}]
+	 * 
+	 * 
+	 */
+	function sortByInitials(arr, key, flag) {
+		return arr.sort(function (a, b) {
+			var type = typeOf(key),
+				regStr = 'boolean undefined',
+				result = regStr.indexOf(type) >= 0,
+				isReverse = result ? !!key : !!flag,
+				prevVal = result ? a.toUpperCase() : a[key].toUpperCase(),
+				nextVal = result ? b.toUpperCase() : b[key].toUpperCase();
+			return !isReverse ? prevVal.charCodeAt() - nextVal.charCodeAt() : 
+						  		nextVal.charCodeAt() - prevVal.charCodeAt() 
+		})
+	}
+
+
+
+	/**数组扁平化，拉伸数组
+	 * @param arr Array 需要操作的数组对象
+	 * @return Array 返回拉伸后的数组对象
+	 *
+	 *
+	 * Test:
+	 * var foo1 = [1, [2, 3], [4, 5, [6, 7, [8]]], [9], 10];
+	 * stretchArr(foo1);
+	 *
+	 * 
+	 * Expect:
+	 * ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+	 * 
+	 * 
+	 * PS: 拉伸后的数组元素为String
+	 */
+	function stretchArr(arr){
+		if(!Array.isArray(arr)) console.error("请传入一个数组");
+		return arr.join(",").split(",");
+	}
+
+
+	/**筛选数据，用于echarts数据可视化
 	 * @param target obj/arr 需要进行筛选的目标对象
 	 * @param field str 需要提取的字段名称
 	 * @return Array 返回一个包含需要字段信息的数组
@@ -461,136 +550,82 @@ function empty(obj){
 	 *
 	 * PC: 此方法编写目的是用于Echarts所需data数据的提取
 	 */
-function filterData(target,field,arr){
-    "use strict";
-    var arr = (typeof arr === "array") ? arr : [];
-    if(typeof field !== "string")console.error("传入_pickUpData函数的参数不合法");
-    if(arguments.length < 2)console.error("至少传入_pickUpData函数两个参数");
-    if(Array.isArray(target)){	// isArray
-        target.forEach(function(item,index){
-           if(typeof item === 'object')Array.prototype.push.apply(arr,filterData(item,field,arr));
-        });
-    }else if(typeof target === "object"){	// isObject
-    	if(Array.isArray(target[field])){
-    		if (typeof extend === 'function') {
-    			arr.push(...extend(target[field], true));	// just for ES6
-    		}
-    		else{
-    			throw new Error('Can\'t find function: \'extend\'');
-    		}
-    	}
-        else if(typeof target[field] !== "undefined"){	
-        	arr.push(target[field]);	// if has found, just push it in target array
-        }
-        else{
-        	for(var key in target){		// Otherwise, the recursive loop is executed
-        		Array.prototype.push.apply(arr,filterData(target[key],field,arr))
-        	}
-        }
-    }else{
-        return;
-    }
-    return arr;
-}
-
-
-/* 数组操作 -------------------------------------------------------------------------------------- */
-	
-	/**
-	 * 按照英文字母对数组排序【有bug】
-	 * @param arr Array 需要进行排序操作的数组对象
-	 * @param [key] String 如果传入的话必须是作为Key值的字符串
-	 * 告诉程序需要按照当前对象的哪个key对应的value值排序
-	 *
-	 * @param flag Boolean 是否倒序，默认false按正序排列，设置为true则倒序
-	 * @return Array 返回排序后的数组对象
-	 * 
-	 */
-	function sortByInitials(arr, key, flag) {
-		return arr.sort(function (a, b) {
-			console.log(a, b)
-			var type = typeOf(key),
-				regStr = 'boolean undefined',
-				isReverse = type.indexOf(regStr) > 0 ? key : !!flag,
-				prevVal = type.indexOf(regStr) > 0 ? a.toUpperCase() : a[key].toUpperCase(),
-				nextVal = type.indexOf(regStr) > 0 ? b.toUpperCase() : b[key].toUpperCase();
-			return !flag ? prevVal.charCodeAt() - nextVal.charCodeAt() : 
-						   nextVal.charCodeAt() - prevVal.charCodeAt() 
-		})
+	function filterData(target,field,arr){
+	    "use strict";
+	    var arr = (typeof arr === "array") ? arr : [];
+	    if(typeof field !== "string")console.error("传入_pickUpData函数的参数不合法");
+	    if(arguments.length < 2)console.error("至少传入_pickUpData函数两个参数");
+	    if(Array.isArray(target)){	// isArray
+	        target.forEach(function(item,index){
+	           if(typeof item === 'object')Array.prototype.push.apply(arr,filterData(item,field,arr));
+	        });
+	    }else if(typeof target === "object"){	// isObject
+	    	if(Array.isArray(target[field])){
+	    		if (typeof extend === 'function') {
+	    			arr.push(...extend(target[field], true));	// just for ES6
+	    		}
+	    		else{
+	    			throw new Error('Can\'t find function: \'extend\'');
+	    		}
+	    	}
+	        else if(typeof target[field] !== "undefined"){	
+	        	arr.push(target[field]);	// if has found, just push it in target array
+	        }
+	        else{
+	        	for(var key in target){		// Otherwise, the recursive loop is executed
+	        		Array.prototype.push.apply(arr,filterData(target[key],field,arr))
+	        	}
+	        }
+	    }else{
+	        return;
+	    }
+	    return arr;
 	}
 
 
-
-// 数组扁平化========================================================================================================================
-	/**拉伸数组
-	 * @param arr Array 需要操作的数组对象
-	 * @return Array 返回拉伸后的数组对象
-	 *
-	 *
-	 * Test:
-	 * var foo1 = [1, [2, 3], [4, 5, [6, 7, [8]]], [9], 10];
-	 * stretchArr(foo1);
-	 *
-	 * 
-	 * Expect:
-	 * ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
-	 * 
-	 * 
-	 * PS: 拉伸后的数组元素为String
-	 */
-function stretchArr(arr){
-	if(!Array.isArray(arr)) console.error("请传入一个数组");
-	return arr.join(",").split(",");
-}
-
-
-
-// 数组中最大数字提取=======================================================================================================================
 	/**筛选数组中最大数
 	 * @param arr Array 需要进行筛选的目标数组
 	 * @return Array 返回该数组中的最大数
 	 */
-function arrayMax(arr){
-	// 暂不做ES5以下浏览器的兼容
-	if(typeof Array.prototype.reduce === "undefined") return "low end Browser";
+	function arrayMax(arr){
+		// 暂不做ES5以下浏览器的兼容
+		if(typeof Array.prototype.reduce === "undefined") return "low end Browser";
 
-	// ES5的归并方法
-	return arr.reduce((prev,cur,i,arr)=>{
-		prev = parseFloat(prev),
-		cur = parseFloat(cur);
-		if(cur > prev){
-			return cur;
-		}else{
-			return prev;
-		}
-	});
-}
+		// ES5的归并方法
+		return arr.reduce((prev,cur,i,arr)=>{
+			prev = parseFloat(prev),
+			cur = parseFloat(cur);
+			if(cur > prev){
+				return cur;
+			}else{
+				return prev;
+			}
+		});
+	}
 
 
-// 数组中最小数字提取=======================================================================================================================
-	/**筛选数组中最大数
+	/**筛选数组中最小数
 	 * @param arr Array 需要进行筛选的目标数组
 	 * @return Array 返回该数组中的最小数
 	 */
-function arrayMax(arr){
-	// 暂不做ES5以下浏览器的兼容
-	if(typeof Array.prototype.reduce === "undefined") return "low end Browser";
+	function arrayMin(arr){
+		// 暂不做ES5以下浏览器的兼容
+		if(typeof Array.prototype.reduce === "undefined") return "low end Browser";
 
-	// ES5的归并方法
-	return arr.reduce((prev,cur,i,arr)=>{
-		prev = parseFloat(prev),
-		cur = parseFloat(cur);
-		if(cur < prev){
-			return cur;
-		}else{
-			return prev;
-		}
-	});
-}
+		// ES5的归并方法
+		return arr.reduce((prev,cur,i,arr)=>{
+			prev = parseFloat(prev),
+			cur = parseFloat(cur);
+			if(cur < prev){
+				return cur;
+			}else{
+				return prev;
+			}
+		});
+	}
 
 
 
-// 范围随机数 ========================================================================================================================
 	/**
 	 * 范围随机数
 	 * @param min Number 最小数字
@@ -598,17 +633,16 @@ function arrayMax(arr){
 	 * @return Array 返回拉伸后的数组对象 
 	 * 
 	 */
-function randomNum(Min, Max) {
-	var Range = Math.abs(Max - Min);
-	var Rand = Math.random();
-	var num = Min + Math.round(Rand * Range); //四舍五入
-	return num;
-}
+	function randomNum(Min, Max) {
+		var Range = Math.abs(Max - Min);
+		var Rand = Math.random();
+		var num = Min + Math.round(Rand * Range); //四舍五入
+		return num;
+	}
 
 
 
 
-// 图片批量预加载 ========================================================================================================================
 	/**
 	 * 批量预加载图片函数
 	 * @param IMGArr Array 需要预加载的图片地址
@@ -617,196 +651,195 @@ function randomNum(Min, Max) {
 	 * @return null 
 	 * 
 	 */
-function preloadIMG(IMGArr,CBEvery,CBfinal){
-	var img;
-	IMGArr.forEach(function(item, index, array){
-		if(typeof item === "string"){
-			img = new Image();
-			img.onload = function(){
-				this.onload = null;
-				CBEvery.call(this);
-			};
-			img.src = item;
-		}
-	});
-	CBfinal();
-}
+	function preloadIMG(IMGArr,CBEvery,CBfinal){
+		var img;
+		IMGArr.forEach(function(item, index, array){
+			if(typeof item === "string"){
+				img = new Image();
+				img.onload = function(){
+					this.onload = null;
+					CBEvery.call(this);
+				};
+				img.src = item;
+			}
+		});
+		CBfinal();
+	}
 
 
- // 格式化时间戳========================================================================================================================
   	/**
 	 * 格式化时间戳函数
 	 * @param inputTime String/Date对象
 	 * @return 转换后的时间字符串 
 	 * 
 	 */
- function formatDateTime(inputTime) {    
-    var date = new Date(inputTime);  
-    var y = date.getFullYear();    
-    var m = date.getMonth() + 1;    
-    m = m < 10 ? ('0' + m) : m;    
-    var d = date.getDate();    
-    d = d < 10 ? ('0' + d) : d;    
-    var h = date.getHours();  
-    h = h < 10 ? ('0' + h) : h;  
-    var minute = date.getMinutes();  
-    var second = date.getSeconds();  
-    minute = minute < 10 ? ('0' + minute) : minute;    
-    second = second < 10 ? ('0' + second) : second;   
-    return y + '-' + m + '-' + d+' '+h+':'+minute+':'+second;    
-}; 
+	 function formatDateTime(inputTime) {    
+	    var date = new Date(inputTime),
+	    	y = date.getFullYear(),
+	    	m = date.getMonth() + 1;    
+	    m = m < 10 ? ('0' + m) : m;    
+	    var d = date.getDate();    
+	    d = d < 10 ? ('0' + d) : d;    
+	    var h = date.getHours();  
+	    h = h < 10 ? ('0' + h) : h;  
+	    var minute = date.getMinutes(),
+	    	second = date.getSeconds();  
+	    minute = minute < 10 ? ('0' + minute) : minute;    
+	    second = second < 10 ? ('0' + second) : second;   
+	    return y + '-' + m + '-' + d+' '+h+':'+minute+':'+second;    
+	}; 
 
 
 
 
-// rem自适应 ========================================================================================================================
-/**
- * 设置Html的font-size，rem单位自适应
- * @param size Number 设计图尺寸[px] default 640
- * 推荐尺寸设置：640 750
- * 
- * Init like this:
- * 
- * AutoPage();
- * window.addEventListener('resize', AutoPage, false);
- * 
- */
-function AutoPage(size) {
-	var size = (size - 0).toString() !== 'NaN' ? size : 640;
-	// console.log(document.documentElement.clientWidth);
-    document.documentElement.style.fontSize = document.documentElement.clientWidth * 100 / size + 'px';
-};
-
-
-
-
-
-
-// 数学运算保留精度 ==================================================================================================================
-/**
- * floatTool 包含加减乘除四个方法，能确保浮点数运算不丢失精度
- *
- * 我们知道计算机编程语言里浮点数计算会存在精度丢失问题（或称舍入误差），其根本原因是二进制和实现位数限制有些数无法有限表示
- * 以下是十进制小数对应的二进制表示
- *      0.1 >> 0.0001 1001 1001 1001…（1001无限循环）
- *      0.2 >> 0.0011 0011 0011 0011…（0011无限循环）
- * 计算机里每种数据类型的存储是一个有限宽度，比如 JavaScript 使用 64 位存储数字类型，因此超出的会舍去。舍去的部分就是精度丢失的部分。
- *
- * ** method **
- *  add / subtract / multiply /divide
- *
- * ** explame **
- *  0.1 + 0.2 == 0.30000000000000004 （多了 0.00000000000004）
- *  0.2 + 0.4 == 0.6000000000000001  （多了 0.0000000000001）
- *  19.9 * 100 == 1989.9999999999998 （少了 0.0000000000002）
- *
- * floatObj.add(0.1, 0.2) >> 0.3
- * floatObj.multiply(19.9, 100) >> 1990
- *
- */
-var floatTool = function() {
-
-	/*
-	 * 判断obj是否为一个整数
+	/**
+	 * 设置Html的font-size，rem单位自适应
+	 * @param size Number 设计图尺寸[px] default 640
+	 * 推荐尺寸设置：640 750
+	 * 
+	 * Init like this:
+	 * 
+	 * AutoPage();
+	 * window.addEventListener('resize', AutoPage, false);
+	 * 
 	 */
-    function isInteger(obj) {
-        return Math.floor(obj) === obj
-    }
+	function AutoPage(size) {
+		var size = (size - 0).toString() !== 'NaN' ? size : 640;
+		// console.log(document.documentElement.clientWidth);
+	    document.documentElement.style.fontSize = document.documentElement.clientWidth * 100 / size + 'px';
+	};
 
-	/*
-	 * 将一个浮点数转成整数，返回整数和倍数。如 3.14 >> 314，倍数是 100
-	 * @param floatNum {number} 小数
-	 * @return {object}
-	 *   {times:100, num: 314}
-	 */
-    function toInteger(floatNum) {
-        var ret = {times: 1, num: 0}
-        if (isInteger(floatNum)) {
-            ret.num = floatNum
-            return ret
-        }
-        var strfi  = floatNum + ''
-        var dotPos = strfi.indexOf('.')
-        var len    = strfi.substr(dotPos+1).length
-        var times  = Math.pow(10, len)
-        var intNum = parseInt(floatNum * times + 0.5, 10)
-        ret.times  = times
-        ret.num    = intNum
-        return ret
-    }
 
-	/*
-	 * 核心方法，实现加减乘除运算，确保不丢失精度
-	 * 思路：把小数放大为整数（乘），进行算术运算，再缩小为小数（除）
+
+
+
+
+	/**
+	 * 数学运算保留精度
+	 * 
+	 * floatTool 包含加减乘除四个方法，能确保浮点数运算不丢失精度
 	 *
-	 * @param a {number} 运算数1
-	 * @param b {number} 运算数2
-	 * @param digits {number} 精度，保留的小数点数，比如 2, 即保留为两位小数
-	 * @param op {string} 运算类型，有加减乘除（add/subtract/multiply/divide）
+	 * 我们知道计算机编程语言里浮点数计算会存在精度丢失问题（或称舍入误差），其根本原因是二进制和实现位数限制有些数无法有限表示
+	 * 以下是十进制小数对应的二进制表示
+	 *      0.1 >> 0.0001 1001 1001 1001…（1001无限循环）
+	 *      0.2 >> 0.0011 0011 0011 0011…（0011无限循环）
+	 * 计算机里每种数据类型的存储是一个有限宽度，比如 JavaScript 使用 64 位存储数字类型，因此超出的会舍去。舍去的部分就是精度丢失的部分。
+	 *
+	 * ** method **
+	 *  add / subtract / multiply /divide
+	 *
+	 * ** explame **
+	 *  0.1 + 0.2 == 0.30000000000000004 （多了 0.00000000000004）
+	 *  0.2 + 0.4 == 0.6000000000000001  （多了 0.0000000000001）
+	 *  19.9 * 100 == 1989.9999999999998 （少了 0.0000000000002）
+	 *
+	 * floatObj.add(0.1, 0.2) >> 0.3
+	 * floatObj.multiply(19.9, 100) >> 1990
 	 *
 	 */
-    function operation(a, b, op) {
-        var o1 = toInteger(a)
-        var o2 = toInteger(b)
-        var n1 = o1.num
-        var n2 = o2.num
-        var t1 = o1.times
-        var t2 = o2.times
-        var max = t1 > t2 ? t1 : t2
-        var result = null
-        switch (op) {
-            case 'add':
-                if (t1 === t2) { // 两个小数位数相同
-                    result = n1 + n2
-                } else if (t1 > t2) { // o1 小数位 大于 o2
-                    result = n1 + n2 * (t1 / t2)
-                } else { // o1 小数位 小于 o2
-                    result = n1 * (t2 / t1) + n2
-                }
-                return result / max
-            case 'subtract':
-                if (t1 === t2) {
-                    result = n1 - n2
-                } else if (t1 > t2) {
-                    result = n1 - n2 * (t1 / t2)
-                } else {
-                    result = n1 * (t2 / t1) - n2
-                }
-                return result / max
-            case 'multiply':
-                result = (n1 * n2) / (t1 * t2)
-                return result
-            case 'divide':
-                return result = function() {
-                    var r1 = n1 / n2
-                    var r2 = t2 / t1
-                    return operation(r1, r2, 'multiply')
-                }()
-        }
-    }
+	var floatTool = function() {
 
-    // 加减乘除的四个接口
-    function add(a, b) {
-        return operation(a, b, 'add')
-    }
-    function subtract(a, b) {
-        return operation(a, b, 'subtract')
-    }
-    function multiply(a, b) {
-        return operation(a, b, 'multiply')
-    }
-    function divide(a, b) {
-        return operation(a, b, 'divide')
-    }
+		/*
+		 * 判断obj是否为一个整数
+		 */
+	    function isInteger(obj) {
+	        return Math.floor(obj) === obj
+	    }
 
-    // exports
-    return {
-        add: add,
-        subtract: subtract,
-        multiply: multiply,
-        divide: divide
-    }
-}();
+		/*
+		 * 将一个浮点数转成整数，返回整数和倍数。如 3.14 >> 314，倍数是 100
+		 * @param floatNum {number} 小数
+		 * @return {object}
+		 *   {times:100, num: 314}
+		 */
+	    function toInteger(floatNum) {
+	        var ret = {times: 1, num: 0}
+	        if (isInteger(floatNum)) {
+	            ret.num = floatNum
+	            return ret
+	        }
+	        var strfi  = floatNum + ''
+	        var dotPos = strfi.indexOf('.')
+	        var len    = strfi.substr(dotPos+1).length
+	        var times  = Math.pow(10, len)
+	        var intNum = parseInt(floatNum * times + 0.5, 10)
+	        ret.times  = times
+	        ret.num    = intNum
+	        return ret
+	    }
+
+		/*
+		 * 核心方法，实现加减乘除运算，确保不丢失精度
+		 * 思路：把小数放大为整数（乘），进行算术运算，再缩小为小数（除）
+		 *
+		 * @param a {number} 运算数1
+		 * @param b {number} 运算数2
+		 * @param digits {number} 精度，保留的小数点数，比如 2, 即保留为两位小数
+		 * @param op {string} 运算类型，有加减乘除（add/subtract/multiply/divide）
+		 *
+		 */
+	    function operation(a, b, op) {
+	        var o1 = toInteger(a)
+	        var o2 = toInteger(b)
+	        var n1 = o1.num
+	        var n2 = o2.num
+	        var t1 = o1.times
+	        var t2 = o2.times
+	        var max = t1 > t2 ? t1 : t2
+	        var result = null
+	        switch (op) {
+	            case 'add':
+	                if (t1 === t2) { // 两个小数位数相同
+	                    result = n1 + n2
+	                } else if (t1 > t2) { // o1 小数位 大于 o2
+	                    result = n1 + n2 * (t1 / t2)
+	                } else { // o1 小数位 小于 o2
+	                    result = n1 * (t2 / t1) + n2
+	                }
+	                return result / max
+	            case 'subtract':
+	                if (t1 === t2) {
+	                    result = n1 - n2
+	                } else if (t1 > t2) {
+	                    result = n1 - n2 * (t1 / t2)
+	                } else {
+	                    result = n1 * (t2 / t1) - n2
+	                }
+	                return result / max
+	            case 'multiply':
+	                result = (n1 * n2) / (t1 * t2)
+	                return result
+	            case 'divide':
+	                return result = function() {
+	                    var r1 = n1 / n2
+	                    var r2 = t2 / t1
+	                    return operation(r1, r2, 'multiply')
+	                }()
+	        }
+	    }
+
+	    // 加减乘除的四个接口
+	    function add(a, b) {
+	        return operation(a, b, 'add')
+	    }
+	    function subtract(a, b) {
+	        return operation(a, b, 'subtract')
+	    }
+	    function multiply(a, b) {
+	        return operation(a, b, 'multiply')
+	    }
+	    function divide(a, b) {
+	        return operation(a, b, 'divide')
+	    }
+
+	    // exports
+	    return {
+	        add: add,
+	        subtract: subtract,
+	        multiply: multiply,
+	        divide: divide
+	    }
+	}();
 
 
 
