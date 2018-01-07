@@ -928,6 +928,22 @@
 	}
 
 
+	/**
+	 * 获取 data- 开头的自定义属性
+	 * @param  {Object} el   要获取属性的原生DOM元素
+	 * @param  {String} name 要获取的属性名
+	 * @param  {String} val  要设置的属性值
+	 * @return {String}      获取到的属性值【设置值无返回】
+	 */
+	function getData(el, name, val) {
+		let prefix = 'data-';
+		name = prefix + name;
+		if (val) {
+			el.setAttribute(name, val)
+		}else{
+			return el.getAttribute(name)
+		}
+	}
 
 
 
