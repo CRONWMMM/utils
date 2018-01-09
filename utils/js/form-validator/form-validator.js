@@ -1,9 +1,21 @@
+/**
+ * author: CRONWMMM
+ * github: https://github.com/CRONWMMM
+ * 
+ * version: v0.0.1
+ * date: 2018.1.9
+ *
+ * Just for ES6
+ * 
+ */
 
 
 
 
 
 
+// 项目名称
+const NICKNAME = 'VA'
 
 // 正则表
 const REGLIST = {
@@ -21,6 +33,13 @@ const REGLIST = {
 	Mail: /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/
 }
 
+
+// 断言
+function assert(condition, message) {
+	if (!condition) {
+		console.error(`[${NICKNAME}-warn]:${message}`)
+	} 
+}
 
 
 
