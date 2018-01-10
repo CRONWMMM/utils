@@ -583,6 +583,29 @@
 	}
 
 
+
+	/**
+	 * 数组去空【空字符串 null undefined】
+	 * @param arr Array 需要处理的原始数组
+	 * @return Array 处理后的数组对象 
+	 * 
+	 */
+	function arrayDeleteEmpty(arr) {
+		let clean = []
+		let target = 'null undefined'
+
+		for (let i = 0, len = arr.length; i < len; i++) {
+			let item = arr[i]
+			let type = typeOf(item)
+			if (type === 'string' && empty(item) || target.indexOf(type) >= 0)
+				continue
+			clean.push(item)
+		}
+		return clean
+	}
+
+
+
 	/**筛选数组中最大数
 	 * @param arr Array 需要进行筛选的目标数组
 	 * @return Array 返回该数组中的最大数
@@ -639,6 +662,33 @@
 		var num = Min + Math.round(Rand * Range); //四舍五入
 		return num;
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
