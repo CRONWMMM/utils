@@ -7,6 +7,8 @@
  *
  * Just for ES6
  * 
+ * o(￣ヘ￣o#) 哼！
+ * 
  */
 
 
@@ -41,6 +43,9 @@ function assert(condition, message) {
 	} 
 }
 
+
+// 构造器
+function Builder(el, rules, extend) {}
 
 
 /*
