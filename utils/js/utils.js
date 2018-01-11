@@ -1065,6 +1065,55 @@
 
 
 
+	
+	/**
+	 * 选中特定范围的文本
+	 * @param  {Object} textDom   DOM元素
+	 * @param  {Number} startPos  起始位置
+	 * @param  {Number} endPos    终点位置
+	 */
+	function setSelectText(textDom, startPos, endPos) {
+	    var startPos = parseInt(startPos),
+	        endPos = parseInt(endPos),
+	        textLength = textDom.value.length;
+	    if(textLength){
+	        if(!startPos){
+	            startPos = 0;
+	        }
+	        if(!endPos){
+	            endPos = textLength;
+	        }
+	        if(startPos > textLength){
+	            startPos = textLength;
+	        }
+	        if(endPos > textLength){
+	            endPos = textLength;
+	        }
+	        if(startPos < 0){
+	            startPos = textLength + startPos;
+	        }
+	        if(endPos < 0){
+	            endPos = textLength + endPos;
+	        }
+	        if(textDom.createTextRange){
+	            // IE Support
+	            var range = textDom.createTextRange();
+	            range.moveStart("character",-textLength);
+	            range.moveEnd("character",-textLength);
+	            range.moveStart("character", startPos);
+	            range.moveEnd("character",endPos);
+	            range.select();
+	        }else{
+	            // Firefox support
+	            textDom.setSelectionRange(startPos, endPos);
+	            textDom.focus();
+	        }
+	    }
+	}
+
+
+
+
 /* 表单验证 --------------------------------------------------------------------------------------------------------- */
 	var formValidation = (function () {
 
