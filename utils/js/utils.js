@@ -997,6 +997,33 @@
 
 
 
+
+
+/* 光标操作 ---------------------------------------------------------------------------------------------------------- */
+
+	/**
+	 * 获取光标位置
+	 * @param  {Object} textDom   要获取光标位置的DOM元素
+	 * @return {Number} cursorPos 光标位置
+	 */
+	function getCursortPosition (textDom) {
+	    var cursorPos = 0;
+	    if (document.selection) {
+	        // IE Support
+	        textDom.focus ();
+	        var selectRange = document.selection.createRange();
+	        selectRange.moveStart ('character', -textDom.value.length);
+	        cursorPos = selectRange.text.length;
+	    }else if (textDom.selectionStart || textDom.selectionStart == '0') {
+	        // Firefox support
+	        cursorPos = textDom.selectionStart;
+	    }
+	    return cursorPos;
+	}
+
+
+
+
 /* 表单验证 --------------------------------------------------------------------------------------------------------- */
 	var formValidation = (function () {
 
