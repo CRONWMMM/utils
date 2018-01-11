@@ -1027,7 +1027,6 @@
 	 * 设置光标位置
 	 * @param  {Object} textDom   要设置光标位置的DOM元素
 	 * @param  {Number} pos  	  要设置光标的位置
-	 * @return {Number} cursorPos 光标位置
 	 */
 	function setCursorPosition(textDom, pos){
 	    if(textDom.setSelectionRange) {
@@ -1044,6 +1043,25 @@
 	    }
 	}
 
+
+	/**
+	 * 获取选中文本
+	 * @return {tString} text 选中的文本
+	 */
+	function getSelectText() {
+	    var userSelection, text;
+	    if (window.getSelection) {
+	        // Firefox support
+	        userSelection = window.getSelection();
+	    } else if (document.selection) {
+	        // IE Support
+	        userSelection = document.selection.createRange();
+	    }
+	    if (!(text = userSelection.text)) {
+	        text = userSelection;
+	    }
+	    return text;
+	}
 
 
 
