@@ -1006,7 +1006,7 @@
 	 * @param  {Object} textDom   要获取光标位置的DOM元素
 	 * @return {Number} cursorPos 光标位置
 	 */
-	function getCursortPosition (textDom) {
+	function getCursorPosition (textDom) {
 	    var cursorPos = 0;
 	    if (document.selection) {
 	        // IE Support
@@ -1019,6 +1019,29 @@
 	        cursorPos = textDom.selectionStart;
 	    }
 	    return cursorPos;
+	}
+
+
+
+	/**
+	 * 设置光标位置
+	 * @param  {Object} textDom   要设置光标位置的DOM元素
+	 * @param  {Number} pos  	  要设置光标的位置
+	 * @return {Number} cursorPos 光标位置
+	 */
+	function setCursorPosition(textDom, pos){
+	    if(textDom.setSelectionRange) {
+	        // IE Support
+	        textDom.focus();
+	        textDom.setSelectionRange(pos, pos);
+	    }else if (textDom.createTextRange) {
+	        // Firefox support
+	        var range = textDom.createTextRange();
+	        range.collapse(true);
+	        range.moveEnd('character', pos);
+	        range.moveStart('character', pos);
+	        range.select();
+	    }
 	}
 
 
