@@ -20,6 +20,27 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* base ------------------------------------------------------------------------------------------------------------------------ */
 	/**
 	 * 检测传入的参数类型
@@ -41,6 +62,33 @@
 			'[object Object]' 	 : 'object'
 		};
 		return map[toString.call(obj)];
+	}
+
+
+
+	/**
+	 * 判空函数
+	 * @param  {obj/arr/str}  检测对象
+	 */
+	function empty(obj){
+		if(typeof obj === "object"){
+			if(Array.isArray(obj)){			// array
+				return !obj.length>0
+			}else{							// object
+				return !(function(obj){
+					var key,
+						len = 0;
+					for (key in obj){
+						len = ++len;
+					}
+					return len;
+				})(obj)>0;
+			}
+		}else if(typeof obj === "string"){	// string
+			return !(obj.trim()).length>0
+		}else{								// error
+			throw new Error("empty函数接收的参数类型：对象、数组、字符串");
+		}
 	}
 
 
@@ -117,6 +165,91 @@
 
 
 
+
+	/**
+	 * 自定义事件，仍需完善( 尝试使用单例模式 )
+	 */
+	function EventTarget(){
+		if(!this.handles) this.handles = {};
+	}
+	EventTarget.prototype = {
+		constructor : EventTarget,
+		// 注册事件
+		addHandle : function(type,handler){
+			var type = type.toString(),
+				handlesArr = this.handles[type];
+			if(typeof handlesArr === 'undefined')handlesArr = this.handles[type] = [];
+			if(typeof handler === 'function')handlesArr.push(handler);
+		},
+
+		// 移除事件
+		removeHandler : function(type,handler){
+			var type = type.toString(),
+				handlesArr = this.handles[type],i,len;
+			if(typeof handler === 'undefined'){
+				this.handles[type] = void(0);
+				return ;
+			}
+			if(Array.isArray(handlesArr)){
+				for(i=0,len=handlesArr.length;i<len;i++){
+					if(handlesArr[i]===handler){
+						handlesArr.splice(i,1);
+						break;
+					}
+				}
+			}
+		},
+
+		// 触发事件
+		trigger : function(event){
+			if(!event.target){
+				event.target = this;
+			}
+			var type = event.type.toString(),
+				handlesArr = this.handles[type],i,len;
+			if(Array.isArray(handlesArr)){
+				for(i=0,len=handlesArr.length;i<len;i++){
+					handlesArr[i].call(event.target,event);
+				}
+			}
+		}
+	};
+
+
+	/**
+	 * 辅助绑定函数
+	 * @param  {Function} fn  [description]
+	 * @param  {[type]}   obj [description]
+	 * @return {[type]}       [description]
+	 */
+	function bind(fn,obj){
+		return function(){
+			return fn.apply(obj,arguments);
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* cookie 操作 ------------------------------------------------------------------------------------------------------------- */
 	
 	/**
@@ -149,7 +282,6 @@
 	  }
 	  return '';
 	};
-
 
 
 
@@ -214,6 +346,104 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* 设备类型判断 操作 ------------------------------------------------------------------------------------------------------- */
+
+	/**
+	 * 移动设备类型判断
+	 * @return {Object} 包含设备类型信息的对象
+	 */
+	function whichdevice(){
+	    "use strict";
+	    var device = {};
+	    var ua = navigator.userAgent;
+	    var android = ua.match(/(Android);?[\s\/]+([\d.]+)?/);
+	    var ipad = ua.match(/(iPad).*OS\s([\d_]+)/);
+	    var ipod = ua.match(/(iPod)(.*OS\s([\d_]+))?/);
+	    var iphone = !ipad && ua.match(/(iPhone\sOS)\s([\d_]+)/);
+
+	    device.ios = device.android = device.iphone = device.ipad = device.androidChrome = false;
+
+	    // Android
+	    if (android) {
+	        device.os = 'android';
+	        device.osVersion = android[2];
+	        device.android = true;
+	        device.androidChrome = ua.toLowerCase().indexOf('chrome') >= 0;
+	    }
+	    if (ipad || iphone || ipod) {
+	        device.os = 'ios';
+	        device.ios = true;
+	    }
+	    // iOS
+	    if (iphone && !ipod) {
+	        device.osVersion = iphone[2].replace(/_/g, '.');
+	        device.iphone = true;
+	    }
+	    if (ipad) {
+	        device.osVersion = ipad[2].replace(/_/g, '.');
+	        device.ipad = true;
+	    }
+	    if (ipod) {
+	        device.osVersion = ipod[3] ? ipod[3].replace(/_/g, '.') : null;
+	        device.iphone = true;
+	    }
+	    // iOS 8+ changed UA
+	    if (device.ios && device.osVersion && ua.indexOf('Version/') >= 0) {
+	        if (device.osVersion.split('.')[0] === '10') {
+	            device.osVersion = ua.toLowerCase().split('version/')[1].split(' ')[0];
+	        }
+	    }
+
+	    // Webview
+	    device.webView = (iphone || ipad || ipod) && ua.match(/.*AppleWebKit(?!.*Safari)/i);
+	    // keng..
+	    device.isWeixin = /MicroMessenger/i.test(ua);
+	    return device;
+	};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Url 操作 ------------------------------------------------------------------------------------------------------------- */
 
 	/**
@@ -251,6 +481,29 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* 工具类函数 ----------------------------------------------------------------------------------------------------- */
 	
 	/**
 	 * 倒计时函数
@@ -284,73 +537,6 @@
 			return ;
 		}
 	}
-
-
-
-	/**
-	 * 自定义事件，仍需完善( 尝试使用单例模式 )
-	 */
-	function EventTarget(){
-		if(!this.handles) this.handles = {};
-	}
-	EventTarget.prototype = {
-		constructor : EventTarget,
-		// 注册事件
-		addHandle : function(type,handler){
-			var type = type.toString(),
-				handlesArr = this.handles[type];
-			if(typeof handlesArr === 'undefined')handlesArr = this.handles[type] = [];
-			if(typeof handler === 'function')handlesArr.push(handler);
-		},
-
-		// 移除事件
-		removeHandler : function(type,handler){
-			var type = type.toString(),
-				handlesArr = this.handles[type],i,len;
-			if(typeof handler === 'undefined'){
-				this.handles[type] = void(0);
-				return ;
-			}
-			if(Array.isArray(handlesArr)){
-				for(i=0,len=handlesArr.length;i<len;i++){
-					if(handlesArr[i]===handler){
-						handlesArr.splice(i,1);
-						break;
-					}
-				}
-			}
-		},
-
-		// 触发事件
-		trigger : function(event){
-			if(!event.target){
-				event.target = this;
-			}
-			var type = event.type.toString(),
-				handlesArr = this.handles[type],i,len;
-			if(Array.isArray(handlesArr)){
-				for(i=0,len=handlesArr.length;i<len;i++){
-					handlesArr[i].call(event.target,event);
-				}
-			}
-		}
-	};
-
-
-
-
-	/**
-	 * 辅助绑定函数
-	 * @param  {Function} fn  [description]
-	 * @param  {[type]}   obj [description]
-	 * @return {[type]}       [description]
-	 */
-	function bind(fn,obj){
-		return function(){
-			return fn.apply(obj,arguments);
-		}
-	}
-
 
 
 	/**
@@ -428,32 +614,96 @@
 
 
 
+	/**
+	 * 批量预加载图片函数
+	 * @param IMGArr Array 需要预加载的图片地址
+	 * @param CBEvery Func 每次完成后的回调函数
+	 * @param CBfinal Func 全部完成后的回调函数
+	 * @return null 
+	 * 
+	 */
+	function preloadIMG(IMGArr,CBEvery,CBfinal){
+		var img;
+		IMGArr.forEach(function(item, index, array){
+			if(typeof item === "string"){
+				img = new Image();
+				img.onload = function(){
+					this.onload = null;
+					CBEvery.call(this);
+				};
+				img.src = item;
+			}
+		});
+		CBfinal();
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	
+
+
+
+
+/* css 相关处理函数 ------------------------------------------------------------------------------- */
+
 	/**
-	 * 判空函数
-	 * @param  {obj/arr/str}  检测对象
+	 * 设置Html的font-size，rem单位自适应
+	 * @param size Number 设计图尺寸[px] default 640
+	 * 推荐尺寸设置：640 750
+	 * 
+	 * Init like this:
+	 * 
+	 * AutoPage();
+	 * window.addEventListener('resize', AutoPage, false);
+	 * 
 	 */
-	function empty(obj){
-		if(typeof obj === "object"){
-			if(Array.isArray(obj)){			// array
-				return !obj.length>0
-			}else{							// object
-				return !(function(obj){
-					var key,
-						len = 0;
-					for (key in obj){
-						len = ++len;
-					}
-					return len;
-				})(obj)>0;
-			}
-		}else if(typeof obj === "string"){	// string
-			return !(obj.trim()).length>0
-		}else{								// error
-			throw new Error("empty函数接收的参数类型：对象、数组、字符串");
-		}
-	}
+	function AutoPage(size) {
+		var size = (size - 0).toString() !== 'NaN' ? size : 640;
+		// console.log(document.documentElement.clientWidth);
+	    document.documentElement.style.fontSize = document.documentElement.clientWidth * 100 / size + 'px';
+	};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -652,19 +902,6 @@
 
 
 
-	/**
-	 * 范围随机数
-	 * @param min Number 最小数字
-	 * @param max Number 最大数字
-	 * @return Array 返回拉伸后的数组对象 
-	 * 
-	 */
-	function randomNum(Min, Max) {
-		var Range = Math.abs(Max - Min);
-		var Rand = Math.random();
-		var num = Min + Math.round(Rand * Range); //四舍五入
-		return num;
-	}
 
 
 
@@ -688,38 +925,8 @@
 
 
 
-
-
-
-
-
-
-
-
-	/**
-	 * 批量预加载图片函数
-	 * @param IMGArr Array 需要预加载的图片地址
-	 * @param CBEvery Func 每次完成后的回调函数
-	 * @param CBfinal Func 全部完成后的回调函数
-	 * @return null 
-	 * 
-	 */
-	function preloadIMG(IMGArr,CBEvery,CBfinal){
-		var img;
-		IMGArr.forEach(function(item, index, array){
-			if(typeof item === "string"){
-				img = new Image();
-				img.onload = function(){
-					this.onload = null;
-					CBEvery.call(this);
-				};
-				img.src = item;
-			}
-		});
-		CBfinal();
-	}
-
-
+/* 时间操作函数 ------------------------------------------------------------------------------------- */
+  	
   	/**
 	 * 格式化时间戳函数
 	 * @param inputTime String/Date对象
@@ -745,27 +952,28 @@
 
 
 
-	/**
-	 * 设置Html的font-size，rem单位自适应
-	 * @param size Number 设计图尺寸[px] default 640
-	 * 推荐尺寸设置：640 750
-	 * 
-	 * Init like this:
-	 * 
-	 * AutoPage();
-	 * window.addEventListener('resize', AutoPage, false);
-	 * 
-	 */
-	function AutoPage(size) {
-		var size = (size - 0).toString() !== 'NaN' ? size : 640;
-		// console.log(document.documentElement.clientWidth);
-	    document.documentElement.style.fontSize = document.documentElement.clientWidth * 100 / size + 'px';
-	};
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* 数字操作 ------------------------------------------------------------------------------------------------------------------------------------- */
 
 	/**
 	 * 数学运算保留精度
@@ -896,6 +1104,43 @@
 
 
 
+	/**
+	 * 范围随机数
+	 * @param min Number 最小数字
+	 * @param max Number 最大数字
+	 * @return Array 返回拉伸后的数组对象 
+	 * 
+	 */
+	function randomNum(Min, Max) {
+		var Range = Math.abs(Max - Min);
+		var Rand = Math.random();
+		var num = Min + Math.round(Rand * Range); //四舍五入
+		return num;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /* 字符串操作 ---------------------------------------------------------------------------------------------------------- */
@@ -908,6 +1153,26 @@
 		let string = str.toString();
 		return string[0].toUpperCase() + string.slice(1);
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -997,6 +1262,23 @@
 			return el.getAttribute(name)
 		}
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
