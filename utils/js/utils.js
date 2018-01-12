@@ -950,7 +950,45 @@
 	}; 
 
 
+	/**
+	 * 格式化日期
+	 * @param date : 日期值, [Date]或者[long]
+	 * @param mode 模式：
+	 * 		默认值 0或null,返回格式：yyyy-MM-dd HH:mm:ss
+	 * 		1		返回格式：yyyy-MM-dd
+	 * 		2		返回格式：HH:mm:ss
+	 */
+	function formatDateTime(date, mode){
+	    var _type = typeof date;
+	    if(_type == "object"){
+	        return formatDate0(date);
+	    }else if(_type == "number"){
+	        return formatDate1(date);
+	    }
 
+	    function formatDate0(date){
+	        function _ten(i){
+	            return i < 10 ? "0" + i  : "" + i;
+	        }
+
+	        var s1 = date.getFullYear() + "-" + _ten((date.getMonth() + 1)) + "-" + _ten(date.getDate());
+	        var s2 = _ten(date.getHours()) + ":" + _ten(date.getMinutes()) + ":" + _ten(date.getSeconds());
+
+	        if(mode == 1){
+	            return s1;
+	        }else if(mode == 2){
+	            return s2;
+	        }else{
+	            return s1 + " " + s2;
+	        }
+	    }
+	    function formatDate1(time){
+	        var d = new Date();
+	        d.setTime(time);
+	        return formatDate0(d);
+	    }
+
+	};
 
 
 
