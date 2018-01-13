@@ -193,6 +193,17 @@
 
 
 
+/* utils 工具类 ---------------------------------------------------------------- */
+
+.blur-bgimg{
+  background-image: url(https://y.gtimg.cn/music/photo_new/T002R300x300M000003RMaRI1iFoYd.jpg?max_age=2592000);
+  background-size: cover;
+  filter: blur(65px);
+  -webkit-filter: blur(65px);
+  opacity: .6;
+}
+
+
 
 
 
