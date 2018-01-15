@@ -94,7 +94,7 @@
 
 
 	/**
-	 * 拷贝函数
+	 * 拷贝函数 【自己写的，推荐用下面一种】
 	 * @param target {object} 需要拷贝的目标对象
 	 * @param deep {boolean} 是否执行深拷贝
 	 * @returns {object} 拷贝完成的对象
