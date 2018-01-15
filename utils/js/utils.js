@@ -169,52 +169,56 @@
 	/**
 	 * 自定义事件，仍需完善( 尝试使用单例模式 )
 	 */
-	function EventTarget(){
-		if(!this.handles) this.handles = {};
-	}
-	EventTarget.prototype = {
-		constructor : EventTarget,
-		// 注册事件
-		addHandle : function(type,handler){
-			var type = type.toString(),
-				handlesArr = this.handles[type];
-			if(typeof handlesArr === 'undefined')handlesArr = this.handles[type] = [];
-			if(typeof handler === 'function')handlesArr.push(handler);
-		},
+	const EventTarget = (function() {
+		function _EventTarget(){
+			if(!this.handles) this.handles = {};
+		}
+		_EventTarget.prototype = {
+			constructor : _EventTarget,
+			// 注册事件
+			addHandle : function(type,handler){
+				var type = type.toString(),
+					handlesArr = this.handles[type];
+				if(typeof handlesArr === 'undefined')handlesArr = this.handles[type] = [];
+				if(typeof handler === 'function')handlesArr.push(handler);
+			},
 
-		// 移除事件
-		removeHandler : function(type,handler){
-			var type = type.toString(),
-				handlesArr = this.handles[type],i,len;
-			if(typeof handler === 'undefined'){
-				this.handles[type] = void(0);
-				return ;
-			}
-			if(Array.isArray(handlesArr)){
-				for(i=0,len=handlesArr.length;i<len;i++){
-					if(handlesArr[i]===handler){
-						handlesArr.splice(i,1);
-						break;
+			// 移除事件
+			removeHandler : function(type,handler){
+				var type = type.toString(),
+					handlesArr = this.handles[type],i,len;
+				if(typeof handler === 'undefined'){
+					this.handles[type] = void(0);
+					return ;
+				}
+				if(Array.isArray(handlesArr)){
+					for(i=0,len=handlesArr.length;i<len;i++){
+						if(handlesArr[i]===handler){
+							handlesArr.splice(i,1);
+							break;
+						}
+					}
+				}
+			},
+
+			// 触发事件
+			trigger : function(event){
+				if(!event.target){
+					event.target = this;
+				}
+				var type = event.type.toString(),
+					handlesArr = this.handles[type],i,len;
+				if(Array.isArray(handlesArr)){
+					for(i=0,len=handlesArr.length;i<len;i++){
+						handlesArr[i].call(event.target,event);
 					}
 				}
 			}
-		},
+		};
 
-		// 触发事件
-		trigger : function(event){
-			if(!event.target){
-				event.target = this;
-			}
-			var type = event.type.toString(),
-				handlesArr = this.handles[type],i,len;
-			if(Array.isArray(handlesArr)){
-				for(i=0,len=handlesArr.length;i<len;i++){
-					handlesArr[i].call(event.target,event);
-				}
-			}
-		}
-	};
-
+		return _EventTarget;
+	})()
+	
 
 	/**
 	 * 辅助绑定函数
