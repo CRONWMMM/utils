@@ -171,7 +171,13 @@
 	 */
 	const EventTarget = (function() {
 		function _EventTarget(){
-			if(!this.handles) this.handles = {};
+			// 构造函数的容错处理
+			if(this instanceof Book) {
+				if(!this.handles) this.handles = {};
+			}
+			else {
+				new _EventTarget();
+			}
 		}
 		_EventTarget.prototype = {
 			constructor : _EventTarget,
