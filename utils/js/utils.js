@@ -94,6 +94,33 @@
 
 
 	/**
+	 * 寄生式继承 继承原型
+	 * 这种方式实现的原型继承，在后续增强中不能再重新改写原型对象，否则失效
+	 * @param subClass {Function} 	子类
+	 * @param superClass {Function} 需要被继承的父类
+	 * @returns null 
+	 */
+
+	 const inheritPrototype = ((subClass, superClass) => {
+
+	 	// 原型继承
+		function inheritObject(o) {
+			let F = () => {};
+			F.prototype = o;
+			return new F();
+		}
+
+		// 寄生增强
+		let p = inheritObject(superClass.prototype);
+		p.constructor = subClass;
+		subClass.prototype = p;
+
+	 })();
+	 
+
+
+
+	/**
 	 * 拷贝函数 【自己写的，推荐用下面一种】
 	 * @param target {object} 需要拷贝的目标对象
 	 * @param deep {boolean} 是否执行深拷贝
