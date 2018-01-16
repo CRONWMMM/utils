@@ -966,66 +966,52 @@
   	
   	/**
 	 * 格式化时间戳函数
-	 * @param inputTime String/Date对象
+	 * @param fmt 转换模式
 	 * @return 转换后的时间字符串 
+	 *
+	 * 
+	 * Test1:
+	 * var time1 = new Date().format("yyyy-MM-dd hh:mm:ss");
+	 *
+	 * Expect1:
+	 * "2018-01-16 13:29:00"
+	 *
+	 *
+	 *
+	 *
+	 * Test2:
+	 * var time2 = new Date().format("yyyyMMddhhmmss");
+	 *
+	 * Expect2:
+	 * "20180116132849"
+	 *
 	 * 
 	 */
-	 function formatDateTime(inputTime) {    
-	    var date = new Date(inputTime),
-	    	y = date.getFullYear(),
-	    	m = date.getMonth() + 1;    
-	    m = m < 10 ? ('0' + m) : m;    
-	    var d = date.getDate();    
-	    d = d < 10 ? ('0' + d) : d;    
-	    var h = date.getHours();  
-	    h = h < 10 ? ('0' + h) : h;  
-	    var minute = date.getMinutes(),
-	    	second = date.getSeconds();  
-	    minute = minute < 10 ? ('0' + minute) : minute;    
-	    second = second < 10 ? ('0' + second) : second;   
-	    return y + '-' + m + '-' + d+' '+h+':'+minute+':'+second;    
-	}; 
+	Date.prototype.format = function(fmt) { 
+		var o = { 
+			"M+" : this.getMonth()+1,                 //月份 
+			"d+" : this.getDate(),                    //日 
+			"h+" : this.getHours(),                   //小时 
+			"m+" : this.getMinutes(),                 //分 
+			"s+" : this.getSeconds(),                 //秒 
+			"q+" : Math.floor((this.getMonth()+3)/3), //季度 
+			"S"  : this.getMilliseconds()             //毫秒 
+		}; 
+		if(/(y+)/.test(fmt)) {
+			fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length)); 
+		}
+		for(var k in o) {
+			if(new RegExp("("+ k +")").test(fmt)){
+				fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
+			}
+		}
+		return fmt; 
+	}
 
 
-	/**
-	 * 格式化日期
-	 * @param date : 日期值, [Date]或者[long]
-	 * @param mode 模式：
-	 * 		默认值 0或null,返回格式：yyyy-MM-dd HH:mm:ss
-	 * 		1		返回格式：yyyy-MM-dd
-	 * 		2		返回格式：HH:mm:ss
-	 */
-	function formatDateTime(date, mode){
-	    var _type = typeof date;
-	    if(_type == "object"){
-	        return formatDate0(date);
-	    }else if(_type == "number"){
-	        return formatDate1(date);
-	    }
 
-	    function formatDate0(date){
-	        function _ten(i){
-	            return i < 10 ? "0" + i  : "" + i;
-	        }
 
-	        var s1 = date.getFullYear() + "-" + _ten((date.getMonth() + 1)) + "-" + _ten(date.getDate());
-	        var s2 = _ten(date.getHours()) + ":" + _ten(date.getMinutes()) + ":" + _ten(date.getSeconds());
 
-	        if(mode == 1){
-	            return s1;
-	        }else if(mode == 2){
-	            return s2;
-	        }else{
-	            return s1 + " " + s2;
-	        }
-	    }
-	    function formatDate1(time){
-	        var d = new Date();
-	        d.setTime(time);
-	        return formatDate0(d);
-	    }
-
-	};
 
 
 
