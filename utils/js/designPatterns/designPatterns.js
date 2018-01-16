@@ -17,7 +17,7 @@
 
 
 
-
+/* 原型链继承 ----------------------------------------------------------------------- */
 
 /**
  * 寄生式继承 继承原型
@@ -50,6 +50,75 @@ const inheritPrototype = ((subClass, superClass) => {
 	}
 
 })(subClass, superClass);
+
+
+
+
+
+
+
+
+
+
+
+
+/* 工厂模式 ------------------------------------------------------------------------- */
+/**
+// 安全模式下的工厂方法
+ * @param  {[type]} () [description]
+ * @return {[type]}    [description]
+ */
+const Factory = (() => {
+
+	// 安全模式，方式出现直接以函数调用形式使用类的情况
+	const Factory = (type, content) => {
+		if (this instanceof Factory) {
+			new this[type](content);
+		}
+		else {
+			new Factory(type, content)
+		}
+	};
+
+	Factory.prototype = {
+		constructor: Factory,
+		type1(content) {
+			this.content = content;
+			// ... 
+		},
+		type2(content) {
+			this.content = content;
+			// ...
+		}
+		// ...
+		
+	}
+
+})();
+
+
+// 批量实例化
+(() => {
+
+	let data = [
+		{ type: 'JavaScript', content: 'JavaScript很飘逸' },
+		{ type: 'PHP', content: 'PHP是世界上最好的语言' },
+		{ type: 'Java', content: '所以我选择Java' }
+	]
+
+	data.forEach(item => {
+		Factory(item.type, item.content);
+	});
+
+})();
+
+
+
+
+
+
+
+
 
 
 
