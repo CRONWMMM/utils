@@ -140,11 +140,91 @@ const Factory = (() => {
 
 
 
+/**
+ * 抽象工厂模式
+ * 
+ */
+const VehicleFactory = (() => {
+
+	const ERR_TEXT = '抽象方法不能调用'
+	const VehicleFactory = (subType, superType) => {
+		if (typeof VehicleFactory[superType] === 'function') {
+			const F = () => {}
+			F.prototype = new superType()
+			subType.prototype = new F()
+			subType.prototype.constructor = subType 
+		}
+		else {
+			// 不存在该抽象类就抛出错误
+			throw new Error('未创建该抽象类')
+		}
+	}
+
+
+	// Car
+	VehicleFactory.Car = () => {
+		this.type = 'car'
+	}
+
+	VehicleFactory.Car.prototype = {
+		getPrice() {
+			return new Error(ERR_TEXT)
+		},
+		getSpeed() {
+			return new Error(ERR_TEXT)
+		}
+	}
 
 
 
 
+	// Bus
+	VehicleFactory.Bus = () => {
+		this.type = 'bus'
+	}
+	
+	VehicleFactory.Bus.prototype = () => {
+		getPrice() {
+			return new Error(ERR_TEXT)
+		},
+		getSpeed() {
+			return new Error(ERR_TEXT)
+		}
+	}
 
+
+
+
+	// Truck
+	VehicleFactory.Truck = () => {
+		this.type = 'truck'
+	}
+	
+	VehicleFactory.Truck.prototype = () => {
+		getPrice() {
+			return new Error(ERR_TEXT)
+		},
+		getSpeed() {
+			return new Error(ERR_TEXT)
+		}
+	}
+
+	return VehicleFactory
+
+})()
+
+// 宝马汽车类
+let BMW = (price, speed) => {
+	this.price = price;
+	this.speed = speed;
+}
+VehicleFactory(BWM, 'Car')
+BWM.prototype.getPrice = () => {
+	return this.price
+}
+BWM.prototype.getSpeed = () => {
+	return this.speed
+}
 
 
 
