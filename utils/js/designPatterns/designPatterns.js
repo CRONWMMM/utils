@@ -240,5 +240,82 @@ BWM.prototype.getSpeed = () => {
 
 
 /* 建造者模式：创建符合对象 ---------------------------------------------------------- */
+const Human = (() => {
+	const Human = function(params) {
+		this.skill = params && params.skill || '保密'
+		this.hobby = params && params.hobby || '保密'
+	}
+	Human.prototype = {
+		constructor: Human,
+		getSkill() {
+			return this.skill
+		},
+		getHobby() {
+			return this.hobby
+		}
+	}
+	return Human
+})()
 
+const Named = (() => {
+	const Named = function(name) {
+		this.wholeName = name
+		if (name.indexOf(' ') > -1) {
+			let nameArr = name.split(' ')
+			this.firstName = nameArr[0]
+			this.lastName = nameArr[1]
+		}
+	}
+	return Named
+})()
+
+const Work = (() => {
+	const Work = function(work) {
+		if (!(this instanceof Work)) {
+			return new Work(work)
+		}
+		switch(work) {
+			case 'code':
+				this.work = '工程师',
+				this.workDescript = '每天沉醉于编程'
+				break
+			case 'UI':
+			case 'UE':
+				this.work = '设计师',
+				this.workDescript = '设计更似一种艺术'
+				break
+			case 'teach':
+				this.work = '教师',
+				this.workDescript = '分享也是一种快乐'
+				break
+			default:
+				this.work = work
+				this.workDescript = '暂无相关工作描述'
+		}
+	}	
+
+	Work.prototype = {
+		constructor: Work,
+		changeWork(work) {
+			this.work = work
+		},
+		workDescript(desc) {
+			this.workDescript = desc
+		}
+	}
+
+	return Work
+})()
+
+
+/**
+ * 应聘建造者
+ *
+ */
+const Person = function(name, work) {
+	let _person = new Human()
+	_person.name = new Named(name)
+	_person.work = new Work(work)
+	return _person
+}
 
