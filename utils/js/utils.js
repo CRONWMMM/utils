@@ -870,7 +870,7 @@
 
 
 
-	/**筛选数组中最大数
+	/**筛选数组中最大数，自己写的一套，可以用原生 Math.max(a,b,c,d)代替
 	 * @param arr Array 需要进行筛选的目标数组
 	 * @return Array 返回该数组中的最大数
 	 */
@@ -891,7 +891,7 @@
 	}
 
 
-	/**筛选数组中最小数
+	/**筛选数组中最小数，自己写的一套，可以用原生 Math.min(a,b,c,d)代替
 	 * @param arr Array 需要进行筛选的目标数组
 	 * @return Array 返回该数组中的最小数
 	 */
@@ -912,6 +912,33 @@
 	}
 
 
+	/**
+	 * 数组扩展方法，用于找到第一个符合条件的数组成员。
+	 * @param  {[type]}   [description]
+	 * @return {[type]}   [description]
+	 *
+	 *
+	 * Test:
+	 * [1,2,3,4,5,-10,20,120,-8].find((item, index, arr) => { return item < 0 })
+	 *
+	 *
+	 * Expect:
+	 * -10
+	 * 
+	 */
+	(() => {
+		// 支持ES6原生find方法就用原生
+		if (Array.prototype.find) return;
+
+		// 这块注意不能写成箭头函数形式
+		// 由于箭头函数没有自己的this，如果写成箭头函数，this直接指向window
+		Array.prototype.find = function(callBack) {
+			for (let i = 0; i < this.length; i++) {
+				if (callBack(this[i], i, this)) return this[i] 
+			}
+		}
+
+	})()
 
 
 
