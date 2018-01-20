@@ -914,8 +914,8 @@
 
 	/**
 	 * 数组扩展方法，用于找到第一个符合条件的数组成员。
-	 * @param  {[type]}   [description]
-	 * @return {[type]}   [description]
+	 * @param  {Function} 执行筛选的回调函数
+	 * @return {Object}   筛选出来的对象
 	 *
 	 *
 	 * Test:
@@ -942,7 +942,33 @@
 
 
 
+	/**
+	 * 数组扩展方法，用于找到第一个符合条件的数组成员的索引。
+	 * @param  {Function} 执行筛选的回调函数
+	 * @return {Number}   对应项的索引
+	 *
+	 *
+	 * Test:
+	 * [1,2,3,4,5,-10,20,120,-8].findIndex((item, index, arr) => { return item < 0 })
+	 *
+	 *
+	 * Expect:
+	 * 5
+	 * 
+	 */
+	(() => {
+		// 支持ES6原生findIndex方法就用原生
+		if (Array.prototype.findIndex) return;
 
+		// 这块注意不能写成箭头函数形式
+		// 由于箭头函数没有自己的this，如果写成箭头函数，this直接指向window
+		Array.prototype.findIndex = function(callBack) {
+			for (let i = 0; i < this.length; i++) {
+				if (callBack(this[i], i, this)) return i
+			}
+		}
+
+	})(
 
 
 
