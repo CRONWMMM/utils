@@ -169,8 +169,37 @@
 	/**
 	 * 对象深度查找
 	 * @param target Object 需要处理的原始对象
-	 * @return callback filter函数
+	 * @param callback filter函数
+	 * @return Object 符合filter筛选条件的对应对象
 	 *
+	 * Test:
+	 * var data = [
+	 *					{
+	 *						id: 1,
+	 *						family: '隔壁老王家'
+	 *						lists: [
+	 *							{ id: 4, name: '老王老婆' },
+	 *							{ id: 5, name: '老王儿子' },
+	 *							{ id: 6, name: '老王儿媳' }
+	 *						]
+	 *					},
+	 *					{
+	 *						id: 2,
+	 *						family: '隔壁老李家'
+	 *						lists: [
+	 *							{ id: 7, name: '老李小姨子' },
+	 *							{ id: 8, name: '老李老婆' }
+	 *						]
+	 *					}
+	 *				]
+	 * findDeeply(data, item => item.id === 7)
+	 *
+	 *
+	 *
+	 *
+	 * Expect:
+	 * { id: 7, name: '老李小姨子' }
+	 * 
 	 */
 	function findDeeply(target, callback) {
 	    const flag = typeOf(target)
@@ -194,9 +223,11 @@
 
 
 	/**
-	 * 对象深度查找【对象原型扩展】
+	 * 对象深度查找【对象原型扩展】,和上面一个功能相同
+	 * 调用方式：data.findDeeply(Func)
 	 * @param target Object 需要处理的原始对象
-	 * @return callback filter函数
+	 * @param callback filter函数
+	 * @return Object 符合filter筛选条件的对应对象
 	 *
 	 */
 	(() => {
