@@ -172,12 +172,12 @@
 	 * @return callback filter函数
 	 *
 	 */
-	function findDeep(target, callback) {
+	function findDeeply(target, callback) {
 	    const flag = typeOf(target)
 	    let result
 	    if (flag === 'array') {
 	        for (let i = 0; i < target.length; i++) {
-	            result = findDeep(target[i], callback)
+	            result = findDeeply(target[i], callback)
 	            if (result) return result
 	        }
 	    }
@@ -186,13 +186,42 @@
 	            return target
 	        }
 	        for (let k in target) {
-	            result = findDeep(target[k], callback)
+	            result = findDeeply(target[k], callback)
 	            if (result) return result
 	        }
 	    }
 	}
 
-	
+
+	/**
+	 * 对象深度查找【对象原型扩展】
+	 * @param target Object 需要处理的原始对象
+	 * @return callback filter函数
+	 *
+	 */
+	(() => {
+	    Object.prototype.findDeeply = function(callback) {
+	        const flag = typeOf(this)
+	        let result
+	        if (flag === 'array') {
+	            for (let i = 0; i < this.length; i++) {
+	                result = this[i].findDeeply(callback)
+	                if (result) return result
+	            }
+	        }
+	        else if (flag === 'object') {
+	            if (callback(this)) {
+	                return this
+	            }
+	            for (let k in this) {
+	                result = this[k].findDeeply(callback)
+	                if (result) return result
+	            }
+	        }
+	    }
+	})()
+
+
 
 
 	/**
