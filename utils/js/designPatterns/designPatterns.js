@@ -324,5 +324,63 @@ const Person = function(name, work) {
 	建造者模式不同于工厂模式，工厂模式注重于结果，创建的对象之间差别较小，无个性化定制。
 	建造者关心的对象的创建过程，创建出来的对象粒度较细，创建类的每一个模块都能得到高度复用。
 
-
 */
+
+
+/**
+ * 惰性单例模式
+ *
+ */
+let lazySingle = (() => {
+
+	let _instance = null
+
+	function Single() {
+		return {
+			a() {},
+			b: 'PublicProperty'
+		}
+	}
+
+	return function () {
+		if (!_instance) {
+			_instance = Single()
+		}
+		return _instance
+	}
+
+})()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
