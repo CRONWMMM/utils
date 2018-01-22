@@ -166,6 +166,34 @@
 
 
 
+	/**
+	 * 对象深度查找
+	 * @param target Object 需要处理的原始对象
+	 * @return callback filter函数
+	 *
+	 */
+	function findDeep(target, callback) {
+	    const flag = typeOf(target)
+	    let result
+	    if (flag === 'array') {
+	        for (let i = 0; i < target.length; i++) {
+	            result = findDeep(target[i], callback)
+	            if (result) return result
+	        }
+	    }
+	    else if (flag === 'object') {
+	        if (callback(target)) {
+	            return target
+	        }
+	        for (let k in target) {
+	            result = findDeep(target[k], callback)
+	            if (result) return result
+	        }
+	    }
+	}
+
+	
+
 
 	/**
 	 * 自定义事件，仍需完善( 尝试使用单例模式 )
