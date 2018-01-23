@@ -253,6 +253,66 @@
 	})()
 
 
+	var data = [
+		{
+			num: 0,
+			type: 'father',
+			sons: [
+				{
+					name: 'JAN',
+					type: 'son',
+					fatherid: 0
+				},{
+					name: 'KOA',
+					type: 'son',
+					fatherid: 0
+				},{
+					name: 'SEVENS',
+					type: 'son',
+					fatherid: 0
+				}
+			]
+		},{
+			num: 1,
+			type: 'father',
+			sons: [
+				{
+					name: 'READ',
+					type: 'son',
+					fatherid: 1
+				},{
+					name: 'OPERIY',
+					type: 'son',
+					fatherid: 1
+				}
+			]
+		}
+	];
+	/**
+	 * 对象深度查找，返回list数组 【待完善】
+	 * @param  {Array}  arr       [description]
+	 * @param  {[type]} callback) {	                  const flag [description]
+	 * @return {[type]}           [description]
+	 */
+	(() => {
+	    Object.prototype.findDeeplyList = function(arr=[], callback) {
+	        const flag = typeOf(this)
+	        if (flag === 'array') {
+	            for (let i = 0; i < this.length; i++) {
+	                this[i].findDeeplyList(arr, callback)
+	            }
+	        }
+	        else if (flag === 'object') {
+	            if (callback(this)) {
+	                arr.push(this)
+	            }
+	            for (let k in this) {
+	                this[k].findDeeplyList(arr, callback)
+	            }
+	        }
+	    }
+	})()
+
 
 
 	/**
