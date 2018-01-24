@@ -358,12 +358,14 @@
 
 
 	/**
-	 * 自定义事件，仍需完善( 尝试使用单例模式 )
+	 * 自定义事件( 单例模式 )
 	 */
 	const EventTarget = (function() {
+		let _evt = null
+
 		function _EventTarget(){
 			// 构造函数的容错处理
-			if(this instanceof Book) {
+			if(this instanceof _EventTarget) {
 				if(!this.handles) this.handles = {};
 			}
 			else {
@@ -372,7 +374,7 @@
 		}
 		_EventTarget.prototype = {
 			constructor : _EventTarget,
-			// 注册事件
+			// 注册事件，注意，这块注册的函数是否可以写成箭头函数，写成箭头函数的时候，在trigger阶段绑定this执行是否会有问题，有待研究
 			addHandle : function(type,handler){
 				var type = type.toString(),
 					handlesArr = this.handles[type];
@@ -399,21 +401,42 @@
 			},
 
 			// 触发事件
-			trigger : function(event){
+			trigger : function(evt){
+				var event = typeof evt === 'object' ? evt : { type: evt.toString() },
+					type = event.type ? event.type.toString() : '',
+					params = event.params && Array.isArray(event.params) ? event.params : [],
+					handlesArr = this.handles[type];
+
 				if(!event.target){
 					event.target = this;
 				}
-				var type = event.type.toString(),
-					handlesArr = this.handles[type],i,len;
 				if(Array.isArray(handlesArr)){
-					for(i=0,len=handlesArr.length;i<len;i++){
-						handlesArr[i].call(event.target,event);
+					for(var i=0,len=handlesArr.length;i<len;i++){
+						handlesArr[i].apply(event.target,params);
 					}
 				}
 			}
 		};
 
-		return _EventTarget;
+	    /**
+	     * 惰性单例，返回的是一个待执行的函数，函数执行再实例化_evt
+
+	    return function () {
+	        if (!_evt) {
+	            _evt = new _EventTarget()
+	        }
+	        return _evt
+	    };
+
+	     */
+
+	    if (_evt && _evt instanceof _EventTarget) {
+	        // do nothing
+	    }
+	    else {
+	        _evt = new _EventTarget()
+	    }
+	    return _evt
 	})()
 	
 
