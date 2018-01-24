@@ -253,50 +253,91 @@
 	})()
 
 
-	var data = [
-		{
-			num: 0,
-			type: 'father',
-			sons: [
-				{
-					name: 'JAN',
-					type: 'son',
-					fatherid: 0
-				},{
-					name: 'KOA',
-					type: 'son',
-					fatherid: 0
-				},{
-					name: 'SEVENS',
-					type: 'son',
-					fatherid: 0
-				}
-			]
-		},{
-			num: 1,
-			type: 'father',
-			sons: [
-				{
-					name: 'READ',
-					type: 'son',
-					fatherid: 1
-				},{
-					name: 'OPERIY',
-					type: 'son',
-					fatherid: 1
-				}
-			]
-		}
-	];
+
+
+
+
 	/**
-	 * 对象深度查找，返回list数组 【待完善】
-	 * @param  {Array}  arr       [description]
-	 * @param  {[type]} callback) {	                  const flag [description]
-	 * @return {[type]}           [description]
+	 * 对象深度查找，返回list数组 【对象原型扩展】
+	 * @param  {Array}    [arr]     每次深层递归返回的结果数组，作为下次递归的初始数组传入
+	 * @param  {Function} callback  过滤函数
+	 * @return {Array}              结果数组
+	 *
+	 *
+	 * 注意：1.此方法内部使用了ES6扩展运算符、变量结构赋值等语法，需要支持ES6语法的环境
+	 *       2.此方法针对原始对象进行处理，返回的数组对象，其内部包含的是 【原始对象/原始对象子对象】 的指针
+	 *         所以此方法仅仅适合深层查找操作，并不适合修改操作，如果需要筛选过滤后的，请另写适配器返回新数据数组。
+	 *       3.此方法属于扩展原型，所以运用在部分框架下可能有问题，比如Vue，会报错，需要另外改写成纯函数调用的形式
+	 *
+	 *
+	 * Test: 
+	 * var data = [
+			{
+				num: 0,
+				type: 'father',
+				sons: [
+					{
+						name: 'JAN',
+						type: 'son',
+						fatherid: 0,
+						sons: [
+							{name: 'hifa', type: 'son'}
+						]
+					},{
+						name: 'KOA',
+						type: 'son',
+						fatherid: 0
+					},{
+						name: 'SEVENS',
+						type: 'son',
+						fatherid: 0
+					}
+				]
+			},{
+				num: 1,
+				type: 'father',
+				sons: [
+					{
+						name: 'READ',
+						type: 'son',
+						fatherid: 1
+					},{
+						name: 'OPERIY',
+						type: 'son',
+						fatherid: 1
+					}
+				]
+			}
+		];
+
+		data.findDeeplyList(item => item.type === 'son')
+	 *
+	 *
+	 *
+	 *
+	 * Expect: 
+	 * (6) [{…}, {…}, {…}, {…}, {…}, {…}]
+		0 : {name: "JAN", type: "son", fatherid: 0, sons: Array(1)}
+		1 : {name: "hifa", type: "son"}
+		2 : {name: "KOA", type: "son", fatherid: 0}
+		3 : {name: "SEVENS", type: "son", fatherid: 0}
+		4 : {name: "READ", type: "son", fatherid: 1}
+		5 : {name: "OPERIY", type: "son", fatherid: 1}
+		length : 6
+		__proto__ : Array(0)
+	 *
+	 *
+	 *
+	 *
 	 */
 	(() => {
-	    Object.prototype.findDeeplyList = function(arr=[], callback) {
+	    Object.prototype.findDeeplyList = function(arr, callback) {
 	        const flag = typeOf(this)
+	        if (typeOf(arr) === 'function') {
+	        	[callback, arr] = [arr, []]
+	        }
+
+	        
 	        if (flag === 'array') {
 	            for (let i = 0; i < this.length; i++) {
 	                this[i].findDeeplyList(arr, callback)
@@ -307,9 +348,10 @@
 	                arr.push(this)
 	            }
 	            for (let k in this) {
-	                this[k].findDeeplyList(arr, callback)
+	            	this[k].findDeeplyList(arr, callback)
 	            }
 	        }
+	        return arr
 	    }
 	})()
 
