@@ -1433,6 +1433,21 @@
 	}
 
 
+	/**
+	 * 指定长度的随机字符串
+	 * @param len {Number} 需要生成的随机字符串长度
+	 * @return {String}    生成的随机字符串
+	 */
+	function random_string(len) {
+	　　len = len || 32;
+	　　var chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';   
+	　　var maxPos = chars.length;
+	　　var pwd = '';
+	　　for (i = 0; i < len; i++) {
+	    　　pwd += chars.charAt(Math.floor(Math.random() * maxPos));
+	    }
+	    return pwd;
+	}
 
 
 
