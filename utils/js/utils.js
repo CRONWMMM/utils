@@ -1488,6 +1488,39 @@
 
 
 
+/* 文件操作 ---------------------------------------------------------------------------------------------------------- */
+
+	/**
+	 * 获取文件后缀
+	 * @param filename    {String}  文件名
+	 * @param separator   {Boolean} 是否要分隔符，默认不需要
+	 * @returns {string}
+	 */
+	function get_suffix(filename, separator=false) {
+	    let pos = separator ? filename.lastIndexOf('.') : filename.lastIndexOf('.') + 1,
+	        suffix = ''
+	    if (pos != -1) {
+	        suffix = filename.substring(pos)
+	    }
+	    return suffix
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1743,38 +1776,6 @@
 	        textDom.focus();
 	    }
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* 表单验证 --------------------------------------------------------------------------------------------------------- */
-	var formValidation = (function () {
-
-		
-
-	})();
-
-
-
-
-
-
-
-
 
 
 
