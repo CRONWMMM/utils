@@ -1249,6 +1249,14 @@
 	}
 
 
+	/**
+	 * 获取 1970/1/1 午夜距离该日期时间的秒数/毫秒数
+	 * @param second    {Boolean} 返回秒/毫秒数 【true : 秒 , false : 毫秒 , 默认返回秒】
+	 * @returns {number}
+	 */
+	function getParseDate(second=true) {
+	    return second ? Date.parse(new Date()) / 1000 : Date.parse(new Date())
+	}
 
 
 
