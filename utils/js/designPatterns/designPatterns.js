@@ -354,13 +354,24 @@ let lazySingle = (() => {
 
 
 
+/**
+ * 函数柯里化
+ * @param  {Function} fn [description]
+ * @return {[type]}      [description]
+ */
+function curry(fn) {
+	let args = Array.prototype.slice.call(arguments, 1)
+	return function () {
+		let finalArgs = [...arguments].concat(args)
+		return fn.apply(null, finalArgs) 
+	}
+}
 
+function add(num1, num2) {
+	return num1 + num2
+}
 
-
-
-
-
-
+curry(add, 1)(2)
 
 
 
