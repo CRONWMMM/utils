@@ -359,23 +359,50 @@ let lazySingle = (() => {
  * @param  {Function} fn [description]
  * @return {[type]}      [description]
  */
-function curry(fn) {
-	let args = Array.prototype.slice.call(arguments, 1)
-	return function () {
-		let finalArgs = [...arguments].concat(args)
-		return fn.apply(null, finalArgs) 
+!function() {
+	function curry(fn) {
+		let args = Array.prototype.slice.call(arguments, 1)
+		return function () {
+			let finalArgs = args.concat([...arguments])
+			return fn.apply(null, finalArgs) 
+		}
 	}
+
+	function add(num1, num2) {
+		return num1 + num2
+	}
+
+	curry(add, 1)(2)
+}()
+
+
+
+/**
+ * 用函数柯里化模拟 ES5 原生bind方法实现
+ * @return {[type]} [description]
+ */
+!function() {
+	!function() {
+		Function.prototype.bind = function (context) {
+			let args = Array.prototype.slice.call(arguments, 1)
+			return () => {
+				let finalArgs = args.concat([...arguments])
+				this.apply(context, finalArgs)
+			}
+		}	
+	}()
+
+
+	var a = {
+		name: 'CRONWMMM'
+	}
+
+	function sayName() {
+		alert(this.name)
+	}
+
+	sayName.bind(a)()
 }
-
-function add(num1, num2) {
-	return num1 + num2
-}
-
-curry(add, 1)(2)
-
-
-
-
 
 
 
