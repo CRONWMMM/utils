@@ -1185,6 +1185,21 @@
 
 
 
+	/**
+	 * 数组扩展方法，用于检测数组中是否包含某个元素
+	 * @param  {All}     target 需要检测的包含对象
+	 * @return {Boolean} 布尔值，表示是否包含该对象
+	 */
+	(() => {
+		if (Array.prototype.includes) return
+		Array.prototype.includes = function(target) {
+			for (let i = 0; i < this.length; i++) {
+				// 注意这块要全等，因为原生的includes也是全等操作
+				if (this[i] === target) return true
+			}
+			return false
+		} 
+	})()
 
 
 
