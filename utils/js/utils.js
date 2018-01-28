@@ -587,7 +587,7 @@
 
 
 
-/* 设备类型判断 操作 ------------------------------------------------------------------------------------------------------- */
+/* userAgent 客户端检测 ------------------------------------------------------------------------------------------------------- */
 
 	/**
 	 * 移动设备类型判断
@@ -642,10 +642,62 @@
 	    return device;
 	};
 
+	/**
+	 * 用户浏览器内核判断
+	 * @return {String / (Boolean)} 浏览器内核名称 (检测不到返回false)
+	 */
+	const clientJudge = (() => {
+
+		let elStyle = document.createElement('div').style
+
+		const transformName = {
+			webkit: 'webkitTransform',
+			O: 'OTransform',
+			ms: 'msTransform',
+			standard: 'transform'
+		}
+
+		for (let k in transformName) {
+			if (elStyle[transformName[k]] !== undefined) {
+				return k
+			}
+		}
+		return false
+
+	})()
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+/* prefix 添加前缀 ------------------------------------------------------------------------------------------------------------- */
+	/**
+	 * JS动态添加行内样式前缀
+	 * @return {String} 处理过的样式名称
+	 */
+	function prefixStyle(style) {
+		if (typeof clientJudge === 'undefined') console.error('还没判断浏览器类型，调用个鸡儿的prefixStyle方法啊 (╯°Д°)╯︵ ┻━┻') 
+		if (clientJudge === false) {
+			console.error(`你的浏览器不支持 ${style} 属性`)
+		}
+		else if (clientJudge === 'standard') {
+			return style
+		}
+		else {
+			return clientJudge + style.charAt(0).toUpperCase() + style.substr(1)
+		}
+	}
 
 
 
