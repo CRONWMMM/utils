@@ -455,18 +455,20 @@
 
 	/**
 	 * 轮询函数【短轮询】（待完善）
-	 * @param fn     {Function} 轮询条件函数，需要返回Boolean类型的值，来告诉系统是继续轮询还是停止轮询，暂时不支持传递参数，等后面有空用柯里化改写
-	 * @param inter  {Number}   轮询间隔，单位ms，默认20ms
+	 * @param fn       {Function} 轮询条件函数，需要返回Boolean类型的值，来告诉系统是继续轮询还是停止轮询，暂时不支持传递参数，等后面有空用柯里化改写
+	 * @param callback {Function} 轮询终止后执行的回调函数
+	 * @param inter    {Number}   轮询间隔，单位ms，默认20ms
 	 */
 	const polling = (() => {
 	    let timer = 0,
-	        ret
-	    function polling(fn, inter=20) {
+	    	ret
+	    function polling(fn, callback inter=20) {
 	        if (typeOf(fn) !== 'function') return console.error('polling方法第一个参数需要是函数')
 	        if (timer) clearTimeout(timer)
 	        timer = setTimeout(() => {
 	            if (ret = fn()) {
-	                return clearTimeout(timer)
+	                clearTimeout(timer)
+	                callback && callback()
 	            }
 	            polling(fn, inter)
 	        }, inter)
