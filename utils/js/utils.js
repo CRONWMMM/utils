@@ -469,8 +469,9 @@
 	            if (ret = fn()) {
 	                clearTimeout(timer)
 	                callback && callback()
+	            } else {
+	            	polling(fn, inter)
 	            }
-	            polling(fn, inter)
 	        }, inter)
 	    }
 	    return polling
