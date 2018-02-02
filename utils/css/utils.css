@@ -46,6 +46,19 @@
 }
 .abs-full{position: absolute;}
 .fixed-full{position: fixed;}
+/* 内联块垂直居中 */
+.inline-wrapper{
+  display: block;
+  height: 30px;
+  line-height: 30px;
+}
+.inline-center{
+  float: left;
+  display: inline-block;
+}
+
+
+
 
 
 
