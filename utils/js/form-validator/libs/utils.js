@@ -36,3 +36,5 @@ function isObject(obj) {
 	return typeOf(obj) === 'object' ? true : false
 }
 
+
+export { typeOf, isNumber, isString, isFunction, isArray, isObject }
