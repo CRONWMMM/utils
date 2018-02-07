@@ -78,6 +78,9 @@
 	function isObject(obj) {
 		return typeOf(obj) === 'object' ? true : false
 	}
+	function isUndefined(obj) {
+	    return typeOf(obj) === 'undefined' ? true : false
+	}
 
 
 

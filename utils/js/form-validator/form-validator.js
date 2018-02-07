@@ -46,13 +46,18 @@ class schema {
 		let rules = this.rules,
 			currentRule = null
 		for (let k in data) {
-			// currentRule = rules.findDeeply(item => item)
+			currentRule = rules[k]
+			if (!currentRule) continue
+			if (!isArray(currentRule)) this._notice(TIPS.RULES_TYPE_ERR, k)
 		}
 	}
 	
 	// 系统提示
-	_notice(message) {
-		console.error(`[${this.NICKNAME}-warn]:${message}`)
+	_notice(message, field) {
+		if (isUndefined(field)) 
+			console.error(`[${this.NICKNAME}-warn]:${message}`)
+		else
+			console.error(`[${this.NICKNAME}-warn]:${field}${message}`)
 	}
 }
 
