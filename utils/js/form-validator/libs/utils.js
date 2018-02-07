@@ -37,4 +37,56 @@ function isObject(obj) {
 }
 
 
+
+
+
+// 对象深度查找
+(() => {
+    Object.prototype.findDeeply = function(callback) {
+        const flag = typeOf(this)
+        let result
+        if (flag === 'array') {
+            for (let i = 0, item; item = target[i++];) {
+                result = this[i].findDeeply(callback)
+                if (result) return result
+            }
+        }
+        else if (flag === 'object') {
+            if (callback(this)) {
+                return this
+            }
+            for (let k in this) {
+                result = this[k].findDeeply(callback)
+                if (result) return result
+            }
+        }
+    }
+})()
+
+(() => {
+    Object.prototype.findDeeplyList = function(arr, callback) {
+        const flag = typeOf(this)
+        if (typeOf(arr) === 'function') {
+        	[callback, arr] = [arr, []]
+        }
+
+        
+        if (flag === 'array') {
+            for (let i = 0; i < this.length; i++) {
+                this[i].findDeeplyList(arr, callback)
+            }
+        }
+        else if (flag === 'object') {
+            if (callback(this)) {
+                arr.push(this)
+            }
+            for (let k in this) {
+            	this[k].findDeeplyList(arr, callback)
+            }
+        }
+        return arr
+    }
+})()
+
+
 export { typeOf, isNumber, isString, isFunction, isArray, isObject }

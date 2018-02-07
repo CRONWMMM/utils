@@ -43,6 +43,11 @@ class schema {
 	// 遍历器
 	_iterator(data={}) {
 		if (!isArray(data)) this._notice(TIPS.TARGET_TYPE_ERR)
+		let rules = this.rules,
+			currentRule = null
+		for (let k in data) {
+			// currentRule = rules.findDeeply(item => item)
+		}
 	}
 	
 	// 系统提示
