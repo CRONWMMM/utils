@@ -15,24 +15,22 @@
 // utils
 import { typeOf } from './libs/utils'
 // reglist
-import { REGLIST } from 'REGLIST'
+import { REGLIST } from 'reglist'
+// tips
+import { TIPS } from 'tips'
 
 
-
-
-// 断言
-function assert(condition, message) {
-	if (!condition) {
-		console.error(`[${NICKNAME}-warn]:${message}`)
-	} 
-}
+const NICKNAME = 'VA'
 
 
 class schema {
 	constructor(rules) {
-		
+		this.rules = rules
+		this.NICKNAME = NICKNAME
+		this.TIPS = TIPS
 	}
 
+	// 验证器
 	validate(data, fn) {
 		let errors = [],
 			fields = {}
@@ -40,6 +38,16 @@ class schema {
     	// fields is an object keyed by field name with an array of
     	// errors per field
 		fn(errors, fields)
+	}
+
+	// 遍历器
+	_iterator(data={}) {
+		if (!isArray(data)) this._notice(TIPS.TARGET_TYPE_ERR)
+	}
+	
+	// 系统提示
+	_notice(message) {
+		console.error(`[${this.NICKNAME}-warn]:${message}`)
 	}
 }
 
