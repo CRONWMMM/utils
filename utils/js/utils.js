@@ -1027,6 +1027,31 @@
 /* 数组操作 -------------------------------------------------------------------------------------- */
 	
 	/**
+	 * 数组去重
+	 * @param  {Array} arr 需要处理的数组
+	 * @return {Array}     处理完成后的数组
+	 */
+	function dedupe(arr) {
+		if (Set) {
+			return Array.from(new Set(arr))
+		} else {
+			let ret = []
+			for (let i = 0, flag = true, item; item = arr[i++]; flag = true) {
+				loop:
+				for (let k = 0, unit; unit = ret[k++];) {
+					if (unit === item) {
+						flag = false
+						break loop
+					}
+				}
+				if (flag) ret.push(item)
+			}
+			return ret
+		}
+	}
+
+
+	/**
 	 * 按照英文字母对数组排序，代码仍需改进，不是很健壮
 	 * @param arr Array 需要进行排序操作的数组对象
 	 * @param [key] String 如果传入的话必须是作为Key值的字符串
