@@ -931,7 +931,7 @@
 
 
 	/**
-	 * 批量预加载图片函数
+	 * 批量预加载图片函数，没试过，可能有Bug
 	 * @param IMGArr Array 需要预加载的图片地址
 	 * @param CBEvery Func 每次完成后的回调函数
 	 * @param CBfinal Func 全部完成后的回调函数
@@ -953,7 +953,23 @@
 		CBfinal();
 	}
 
-
+	/**
+	 * Promise 加载单张图片
+	 * @param  {String}  path 需要加载的目标图片路径
+	 * @return {Promise}      Promise
+	 */
+	function preloadImage(path) {
+		return new Promise((resolve, reject) => {
+			const image = new Image()
+			image.onload = () => {
+				resolve(this)
+			}
+			image.onerror = () => {
+				reject(new Error('图片加载失败'))
+			}
+			image.src = path
+		})
+	}
 
 
 
