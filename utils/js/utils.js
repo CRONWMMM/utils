@@ -972,7 +972,34 @@
 	}
 
 
+	/**
+	 * 向前补零函数【播放器时长计算等】
+	 * @param  {Number} num 需要处理的数字
+	 * @param  {Number} n   需要补的位数
+	 * @return {String}     处理完成后的字符串
+	 */
+	function padForward(num, n = 2) {
+		let len = num.toString().length
+		while (len < n) {
+			num = '0' + num
+		}
+		return num
+	}
 
+
+	/**
+	 * 向后补零函数【数学取整等】
+	 * @param  {Number} num 需要处理的数字
+	 * @param  {Number} n   需要补的位数
+	 * @return {String}     处理完成后的字符串
+	 */
+	function padBackward(num, n = 2) {
+		let len = num.toString().length
+		while (len < n) {
+			num = num + '0'
+		}
+		return num
+	}
 
 
 
