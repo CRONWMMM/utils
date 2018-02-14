@@ -1124,6 +1124,35 @@
 
 
 	/**
+	 * 数组随机排序
+	 * @param  {Array} arr 需要进行排序操作的数组
+	 * @return {Array}     排序完成后的新数组
+	 * 
+	 * Test:
+	 * [1,2,32,'sds','asd',90,'piis']
+	 *
+	 * 
+	 */
+	function randomSort(arr) {
+		let ret = []
+
+		while (arr.length > 0) {
+			let random = ((min, max) => {
+					let range = Math.abs(max - min),
+						rand = Math.random(),
+						num = min + Math.round(rand * range)
+					return num
+				})(0, arr.length),
+				item = arr.splice(random, 1)
+			ret.push(...item)
+		}
+
+		return ret
+
+	}
+
+
+	/**
 	 * 按照英文字母对数组排序，代码仍需改进，不是很健壮
 	 * @param arr Array 需要进行排序操作的数组对象
 	 * @param [key] String 如果传入的话必须是作为Key值的字符串
@@ -1621,7 +1650,7 @@
 	 * 范围随机数
 	 * @param min Number 最小数字
 	 * @param max Number 最大数字
-	 * @return Array 返回拉伸后的数组对象 
+	 * @return Number 	 生成的随机数
 	 * 
 	 */
 	function randomNum(Min, Max) {
