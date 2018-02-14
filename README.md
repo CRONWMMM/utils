@@ -12,3 +12,5 @@ JS and CSS utils
 - utils【css】
   - utils.css
   - reset.css
+- utils 【Vue-components】
+  - progress-circle.vue（进度环组件）
