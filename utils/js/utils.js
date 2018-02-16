@@ -1153,6 +1153,33 @@
 
 
 	/**
+	 * 洗牌函数，和上面数组随机排序一样，上面是自己第一遍写的，比较繁琐，这个算法更秀
+	 * 方法就是遍历需要打乱的数组，然后从中随机抽取两个元素交换位置。
+	 * @param  {Array} arr 需要打乱的数组
+	 * @return {Array}     打乱后的数组
+	 */
+	function shuffle(arr) {
+
+		let _arr = arr.slice()
+
+		for (let i = 0, len = _arr.length; i < len; i++) {
+			let j = getRandomInt(0, i),
+				t = _arr[i]
+			console.log(j)
+			_arr[i] = _arr[j]
+			_arr[j] = t
+		}
+
+		return _arr
+
+		// 随机范围整数【左右都开】
+		function getRandomInt(min, max) {
+			return Math.floor(Math.random() * (Math.abs(max - min) + 1) + min)
+		}
+	}
+
+
+	/**
 	 * 按照英文字母对数组排序，代码仍需改进，不是很健壮
 	 * @param arr Array 需要进行排序操作的数组对象
 	 * @param [key] String 如果传入的话必须是作为Key值的字符串
