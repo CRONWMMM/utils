@@ -66,6 +66,9 @@
 	function isNumber(obj) {
 		return typeOf(obj) === 'number' ? true : false
 	}
+    function isNaN(obj) {
+        return obj.toString() === 'NaN'
+    }
 	function isString(obj) {
 		return typeOf(obf) === 'string' ? true : false
 	}
@@ -1744,6 +1747,65 @@
 
 
 
+
+
+
+
+
+
+/* 输入过滤 ---------------------------------------------------------------------------------------------------------- */
+/**
+ * 数字输入过滤函数，写的比较繁琐，后面要优化
+ * @param input         输入数据
+ * @param fractionNum   需要保留的小数位数，可不传
+ * @returns {String}    过滤完成后的数据
+ */
+function numberFilter(input,fractionNum) {
+    var input = input.split('') || [],
+        fractionNum = !isNaN(fractionNum-0) ? fractionNum : 0,    // 小数位数
+        pointFlag = true,       // 是否能够输入小数点
+        pointIndex,             // 小数点位置
+        output = [];            // 输出数组
+    input.forEach(function(value,key){
+        if(!isNaN(value-0)){    // 输入的为数字
+            if(fractionNum){   // 允许小数情况
+                if(pointFlag){  // 能够输入小数
+                    output.push(value);
+                }else{     // 已经输入过，不能再输入小数
+                    if(key<=fractionNum+pointIndex){
+                        output.push(value);
+                    }
+                }
+            }else{  // 不允许小数
+                if(key == 0 && value==0){
+
+                }else{
+                    output.push(value);
+                }
+            }
+        }else if(value === '.'){    // 输入为'.'
+            if(pointFlag && fractionNum){
+                if(key === 0){
+                    output.push('0','.');
+                }else if(key > 0){
+                    output.push('.');
+                }
+                pointIndex = key;
+                pointFlag = false;
+            }
+        }
+    });
+    output = output.join('');
+    return output;
+
+    /**
+     * 判断NaN
+     * @param target 需要进行检测的目标对象
+     */
+    function isNaN(target) {
+        return target.toString() === 'NaN'
+    }
+}
 
 
 
