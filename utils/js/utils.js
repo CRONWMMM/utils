@@ -1127,6 +1127,29 @@
 
 
 	/**
+	 * 数组提取，不改变原数组
+	 * @param  {Array}  arr   需要进行操作的原始数组
+	 * @param  {Number} start 截取的初始位置
+	 * @param  {Number} num   需要截取的个数
+	 * @return {Array}        截取完成后返回的新数组
+	 * 
+	 * Test:
+	 * [1,2,32,'sds','asd',90,'piis']
+	 *
+	 * 
+	 */
+	function copypart(arr, start, num) {
+		let ret = []
+		if (typeof num === 'number') {
+			ret = arr.slice(start, start + num)
+		} else {
+			ret = arr.slice(start)
+		}
+		return ret
+	}
+
+
+	/**
 	 * 数组随机排序
 	 * @param  {Array} arr 需要进行排序操作的数组
 	 * @return {Array}     排序完成后的新数组
