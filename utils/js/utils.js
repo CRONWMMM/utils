@@ -64,7 +64,7 @@
 		return map[toString.call(obj)];
 	}
 	function isNumber(obj) {
-		return typeOf(obj) === 'number' ? true : false
+		return typeOf(obj) === 'number' && !isNaN(obj) ? true : false
 	}
     function isNaN(obj) {
         return obj.toString() === 'NaN'
