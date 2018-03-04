@@ -1,0 +1,48 @@
+.burger-menu{
+	position: relative;
+	width: 40px;
+	height: 30px;
+	/*background-color: #eee;*/
+}
+.burger-menu:hover{
+	cursor: pointer;
+}
+.burger-menu .item{
+	position: absolute;
+	display: inline-block;
+	width: 100%;
+	height: 2px;
+	background-color: #333;
+	transition: transform,opacity .4s,.4s;
+}
+.burger-menu .item:nth-child(1){
+	top: 0;
+	left: 0;
+	transform-origin: left top;
+}
+.burger-menu .item:nth-child(2){
+	top: 50%;
+    left: 50%;
+    transform: transLate(-50%, -50%) rotateY(0deg);
+    transform-origin: 30% 50%;
+    opacity: 1;
+}
+.burger-menu .item:nth-child(3){
+	bottom: 0;
+	left: 0;
+	transform-origin: left bottom;
+}
+
+/* animation 添加动画样式 */
+.menu-animate .menu-down{
+	transform: rotate(45deg)!important;
+}
+
+.menu-animate .menu-up{
+	transform: rotate(-45deg)!important;
+}
+
+.menu-animate .menu-rotate{
+	transform: transLate(-50%, -50%) rotateY(90deg)!important;
+	opacity: 0!important;
+}

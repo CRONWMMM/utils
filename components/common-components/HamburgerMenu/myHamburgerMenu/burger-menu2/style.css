@@ -1,0 +1,103 @@
+.burger-menu{
+	position: relative;
+	width: 40px;
+	height: 30px;
+	/*background-color: #eee;*/
+}
+.burger-menu:hover{
+	cursor: pointer;
+}
+.burger-menu .item{
+	position: absolute;
+	display: inline-block;
+	width: 100%;
+	height: 2px;
+	background-color: #333;
+	transform-origin: center center;
+}
+.burger-menu .item:nth-child(1){
+	transform: transLate(0,0);
+	animation-fill-mode: both;
+}
+.burger-menu .item:nth-child(2){
+    transform: transLate(0,14px) rotateY(0deg);
+}
+.burger-menu .item:nth-child(3){
+	transform: transLate(0,28px);
+	animation-fill-mode: both;
+}
+
+
+
+/* animation 添加动画样式 */
+.menu-open-animate .menu-down{
+	animation: menudown .4s;
+}
+
+.menu-close-animate .menu-down{
+	animation: menudownnormal .4s;
+}
+
+.menu-open-animate .menu-up{
+	animation: menuup .4s;
+}
+
+.menu-close-animate .menu-up{
+	animation: menuupnormal .4s;
+}
+
+.menu-close-animate .menu-rotate{
+	transition: transform 0s ease .2s;
+	transform: transLate(0%,14px) rotateY(0deg)!important;
+}
+.menu-open-animate .menu-rotate{
+	transition: transform 0s ease .2s;
+	transform: transLate(0%,14px) rotateY(90deg)!important;
+}
+
+
+@keyframes menudown{
+	0%{
+		transform: transLate(0,0);
+	}
+	50%{
+		transform: transLate(0,14px);
+	}
+	100%{
+		transform: transLate(0,14px) rotate(45deg);
+	}
+}
+@keyframes menudownnormal{
+	0%{
+		transform: transLate(0,14px) rotate(45deg);
+	}
+	50%{
+		transform: transLate(0,14px) rotate(0deg);
+	}
+	100%{
+		transform: transLate(0,0);
+	}
+}
+
+@keyframes menuup{
+	0%{
+		transform: transLate(0,28px);
+	}
+	50%{
+		transform: transLate(0,14px);
+	}
+	100%{
+		transform: transLate(0,14px) rotate(-45deg);
+	}
+}
+@keyframes menuupnormal{
+	0%{
+		transform: transLate(0,14px) rotate(-45deg);
+	}
+	50%{
+		transform: transLate(0,14px) rotate(0deg);
+	}
+	100%{
+		transform: transLate(0,28px);
+	}
+}
