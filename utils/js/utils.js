@@ -1939,7 +1939,7 @@ function numberFilter(input,fractionNum) {
 		while (parent = el.offsetParent) {
 			x += el.offsetLeft;
 			y += el.offsetTop;
-			el = p;
+			el = parent;
 		}
 		return {
 			x: x,
