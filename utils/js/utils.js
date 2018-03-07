@@ -1947,6 +1947,33 @@ function numberFilter(input,fractionNum) {
 		}
 	}
 
+	/*
+	 * 获取鼠标当前相对于某个元素的位置
+	 * @param e 	   {object}    原生事件对象
+	 * @param targetEl {DOMobject} 目标DOM元素
+	 * @return object 包括offsetLeft和offsetTop
+	 * 
+	 * Tips: 
+	 * 1.offsetWidth/offsetHeight 包括border-width，clientWidth/clientHeight不包括border-width，只是可见区域而已
+	 * 2.offsetLeft/offsetTop 是从当前元素边框外缘开始算，一直到定位父元素的距离，clientLeft/clientTop其实就是border-width
+	 */
+	function getOffsetInElement(e, targetEl) {
+		var targetElOffset = (function(targetEl) {
+				return getOffset(targetEl);
+			})(targetEl),
+			left = e.clientX - targetElOffset.x,
+			right = targetEl.clientWidth - left,
+			top = e.clientY - targetElOffset.y,
+			bottom = targetEl.clientHeight - top,
+			ret = {
+				left: left,
+				right: right,
+				top: top,
+				bottom: bottom
+			};
+		return ret;
+	}
+
 
 	/**
 	 * 获取 data- 开头的自定义属性
