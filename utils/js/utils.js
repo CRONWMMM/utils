@@ -250,6 +250,12 @@
 	 * @param callback filter函数
 	 * @return Object 符合filter筛选条件的对应对象
 	 *
+	 *
+	 * Tips: 
+	 * 这种对象扩展的方式在使用框架的项目下可能有问题，例如在Vue和Angular1项目下会报错
+	 * 可以结合使用try catch
+	 *
+	 *
 	 */
 	(() => {
 	    Object.prototype.findDeeply = function(callback) {
@@ -348,7 +354,9 @@
 		__proto__ : Array(0)
 	 *
 	 *
-	 *
+	 * Tips: 
+	 * 这种对象扩展的方式在使用框架的项目下可能有问题，例如在Vue和Angular1项目下会报错
+	 * 可以结合使用try catch
 	 *
 	 */
 	(() => {
@@ -463,6 +471,7 @@
 
 	/**
 	 * 辅助绑定函数
+	 * 原生bind方法是使用柯里化的方式实现的，这边只是简化模式
 	 * @param  {Function} fn  [description]
 	 * @param  {[type]}   obj [description]
 	 * @return {[type]}       [description]
@@ -472,6 +481,19 @@
 			return fn.apply(obj,arguments);
 		}
 	}
+	/**
+	 * 用函数柯里化模拟 ES5 原生bind方法实现
+	 * @return {[type]} [description]
+	 */
+	!function() {
+		Function.prototype.bind = function (context) {
+			let args = Array.prototype.slice.call(arguments, 1)
+			return () => {
+				let finalArgs = args.concat([...arguments])
+				this.apply(context, finalArgs)
+			}
+		}	
+	}()
 
 
 	/**
@@ -738,6 +760,7 @@
 			return style
 		}
 		else {
+			// JS里的样式属性名需要写成驼峰
 			return clientJudge + style.charAt(0).toUpperCase() + style.substr(1)
 		}
 	}
@@ -937,11 +960,11 @@
 	 * 批量预加载图片函数，没试过，可能有Bug
 	 * @param IMGArr Array 需要预加载的图片地址
 	 * @param CBEvery Func 每次完成后的回调函数
-	 * @param CBfinal Func 全部完成后的回调函数
+	 * @param CBFinal Func 全部完成后的回调函数
 	 * @return null 
 	 * 
 	 */
-	function preloadIMG(IMGArr,CBEvery,CBfinal){
+	function preloadIMG(IMGArr,CBEvery,CBFinal){
 		var img;
 		IMGArr.forEach(function(item, index, array){
 			if(typeof item === "string"){
@@ -953,7 +976,7 @@
 				img.src = item;
 			}
 		});
-		CBfinal();
+		CBFinal();
 	}
 
 	/**
@@ -1006,7 +1029,7 @@
 
 
 	/**
-	 * 循环计数法
+	 * 循环计数算法
 	 * @param  {Number} num 传入的目标数
 	 * @param  {Number} max 循环最大限定次数
 	 * @return {Number}     循环的下一个数
@@ -1102,7 +1125,7 @@
 /* 数组操作 -------------------------------------------------------------------------------------- */
 	
 	/**
-	 * 数组去重
+	 * 数组去重，【ES5去重方式，ES6可以使用Set结构进行去重】
 	 * @param  {Array} arr 需要处理的数组
 	 * @return {Array}     处理完成后的数组
 	 */
@@ -1974,6 +1997,20 @@ function numberFilter(input,fractionNum) {
 		return ret;
 	}
 
+	/**
+	 * 判断一个DOM元素是否包裹在另一个DOM元素中【父子关系或者层级嵌套都可以】
+	 * @param  {Object} DOM   		事件对象中的event.target/或者是需要检测的DOM元素
+	 * @param  {Object} targetDOM 	作为限制范围的DOM元素
+	 * @return {Boolean}      		true----是包裹关系，false----不是包裹关系
+	 */
+	function inTargetArea(DOM, targetDOM) {
+		var parent = null;
+		while(parent = DOM.parentNode) {
+			if (parent === targetDOM) return true;
+			DOM = parent;
+		}
+		return false;
+	} 
 
 	/**
 	 * 获取 data- 开头的自定义属性
