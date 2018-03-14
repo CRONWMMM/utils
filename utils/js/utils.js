@@ -854,7 +854,7 @@
 	 * @param  {Function} callback  时间走完后的回调函数 (选传)
 	 * @return {[type]}            [description]
 	 */
-	function countDown(){
+	function countDown(seconds, execution, callback){
 		var seconds = arguments[0] || 0,	// 总计时（s）
 			length = arguments.length,
 			execution,						// 计时过程中的执行逻辑
