@@ -1568,7 +1568,49 @@
 	}
 
 
+	/**
+	 * 秒转换成天/时/分/秒
+	 * @param   second_time  {Number} 返回秒数
+	 * @param   acc  		 {String} 保留精度(和timeStamp内部对应的单位)
+	 * @returns 		     {String}	
+	 */
+	function timeStamp(second_time, acc){  
+		var config = {
+				sec: '秒',
+				min: '分',
+				hour: '小时',
+				day: '天'
+			},
+			divisor = {		// 除数，用作取余操作
+				sec: 1,
+				min: 60,
+				hour: 3600,
+				day: 43200
+			},
+			secondNum = parseInt(second_time),		// 总秒数
+			timeStr = secondNum + config.sec,		// 最后返回的时间字符串
+			limit = -1,
+			sec,min,hour,day;						// 定义的变量
+		sec = secondNum % divisor.min;
+		if (secondNum >= divisor.min && secondNum < divisor.hour) {			// [1分钟, 1小时)
+			min = parseInt(secondNum / divisor.min);
+			timeStr = min + config.min + sec + config.sec;
+		} else if (secondNum >= divisor.hour && secondNum < divisor.day) {		// [1小时, 1天)
+			hour = parseInt(secondNum / divisor.hour);
+			min = parseInt((secondNum - hour * divisor.hour) / divisor.min);
+			timeStr = hour + config.hour + min + config.min + sec + config.sec;
+		} else if (secondNum >= divisor.day) {									// [1天, Infinite天)
+			day = parseInt(secondNum / divisor.day);
+			hour = parseInt((secondNum - day * divisor.day) / divisor.hour);
+			min = parseInt((secondNum - day * divisor.day - hour * divisor.hour) / divisor.min);
+			timeStr = day + config.day + hour + config.hour + min + config.min + sec + config.sec;
+		}
 
+		limit = timeStr.indexOf(acc);
+		if (limit >= 0) timeStr = timeStr.substring(0, limit + acc.length);
+
+		return timeStr;
+	}  
 
 
 
