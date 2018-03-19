@@ -884,6 +884,8 @@
 	/**
 	 * 倒计时器
 	 * 
+	 * 2018.3.19 创建 
+	 *
 	 * 需求：
 	 * 1.可以创建多个互不干扰的独立倒计时器
 	 * 2.可以添加新的倒计时器
@@ -892,8 +894,9 @@
 	 * 5.任何独立的倒计时器每改变一次，就执行一次对应的回调函数
 	 * 6.单个倒计时结束/开始的时候派发事件，或者执行某个callback，并且能传递个性化参数
 	 * 
-	 * 缺陷，这个写法等于创建了多个setTimeout，考虑到JS单线程的特性，倒计时器群会有略微的延迟，并不能保证绝对的准确
-	 * 不过也没事，反正setTimeout就不可能绝对准确。
+	 * 缺陷:
+	 * 1.这个写法等于创建了多个setTimeout，考虑到JS单线程的特性，倒计时器群会有略微的延迟，并不能保证绝对的准确
+	 * 2.如果这个时候一旦有阻塞操作，比如alert，倒计时也会一直被阻塞，直到进程空闲，所以我加上了reload方法，用来手动校准时间
 	 * 
 	 */
 	const CountDown = (function() {
@@ -970,6 +973,14 @@
 			},
 			pause: function() {},				// 暂停
 			continue: function() {},			// 继续
+			reload: function(val) {				// 倒计时重载，必要的时候用来校准时间
+				var props = this.props,
+					state = this.state;
+				state.__flag__ = true;
+				state._time = val;
+				props.el.innerText = timeStamp(val / 1000);
+				this.run();
+			},				
 			finish: function() {				// 结束
 				this.state.__flag__ = false;
 				if (this.state.__timer__ != null) clearTimeout(this.state.__timer__);
