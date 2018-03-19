@@ -909,7 +909,7 @@
 		/*
 			props: {
 				el: 【DOM-element】,						// DOM元素
-				initVal: 【Int】,							// 倒计时器初始值，截止日期时间戳
+				initVal: 【Int】,							// 倒计时器初始值，截止日期时间戳，毫秒
 				start: 【Func】,							// 开始的回调函数
 				finish: 【Func】,							// 结束的回调函数
 				change: 【Func @params: oldTime, newTime】	// 状态改变的回调函数
@@ -918,7 +918,7 @@
 		function _CountDown(props) {
 			var self = this,													// ...
 				el = props.el || null,											// ...
-				initVal = !isNaN(props.initVal) ? props.initVal : 0,			// props里传入的初始值
+				initVal = !isNaN(props.initVal) ? props.initVal : 0,			// props里传入的初始值，毫秒
 				start = _isFunc(props.start) ? props.start : function() {},		// 倒计时器开始时的回调函数
 				finish = _isFunc(props.finish) ? props.finish : function() {},	// 倒计时器结束时的回调函数
 				change = _isFunc(props.change) ? props.change : function() {};	// 倒计时改变时的回调函数
