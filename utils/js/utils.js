@@ -882,6 +882,120 @@
 
 
 	/**
+	 * 倒计时器
+	 * 
+	 * 需求：
+	 * 1.可以创建多个互不干扰的独立倒计时器
+	 * 2.可以添加新的倒计时器
+	 * 3.可以删除某个倒计时器
+	 * 4.可以接收一个开始的时间戳
+	 * 5.任何独立的倒计时器每改变一次，就执行一次对应的回调函数
+	 * 6.单个倒计时结束/开始的时候派发事件，或者执行某个callback，并且能传递个性化参数
+	 * 
+	 * 缺陷，这个写法等于创建了多个setTimeout，考虑到JS单线程的特性，倒计时器群会有略微的延迟，并不能保证绝对的准确
+	 * 不过也没事，反正setTimeout就不可能绝对准确。
+	 * 
+	 */
+	const CountDown = (function() {
+		// 首先执行依赖检测，检测不到依赖函数就报错
+		if (!_isFunc(timeStamp)) {
+			throw new Error('Loss of dependence funntion: timeStamp');
+			return ;
+		}
+
+		/*
+			props: {
+				el: 【DOM-element】,						// DOM元素
+				initVal: 【Int】,							// 倒计时器初始值，截止日期时间戳
+				start: 【Func】,							// 开始的回调函数
+				finish: 【Func】,							// 结束的回调函数
+				change: 【Func @params: oldTime, newTime】	// 状态改变的回调函数
+			}
+		 */
+		function _CountDown(props) {
+			var self = this,													// ...
+				el = props.el || null,											// ...
+				initVal = !isNaN(props.initVal) ? props.initVal : 0,			// props里传入的初始值
+				start = _isFunc(props.start) ? props.start : function() {},		// 倒计时器开始时的回调函数
+				finish = _isFunc(props.finish) ? props.finish : function() {},	// 倒计时器结束时的回调函数
+				change = _isFunc(props.change) ? props.change : function() {};	// 倒计时改变时的回调函数
+
+			this.state = {
+				__flag__: false,		// 倒计时执行控制 flag
+				__timer__: null,		// timeout 存储句柄
+				_time: initVal			// 截止日期时间戳的初始值
+			};
+			this.props = props;			// props
+			this.methods = {			// methods
+				start: start,
+				finish: finish,
+				change: change
+			};
+
+			Object.defineProperties(this.state, {
+				time: {
+					get: function() {
+						return this._time;
+					},
+					set: function(val) {
+						this._time = val;
+						el.innerText = timeStamp(val / 1000);
+					}
+				}
+			});
+		}
+
+		// 倒计时器生命周期
+		_CountDown.prototype = {
+			begin: function() {					// 开始
+				this.state.__flag__ = true;
+				this.methods.start();
+				this.run();
+			},
+			run: function() {					// 执行中
+				var self = this;
+				if (!this.state.__flag__) return ;
+				this.state.__timer__ = setTimeout(function() {
+					var oldTime = self.state.time,
+						newTime = oldTime - 1000;
+					self.state.time = newTime;
+					if (self.state.time > 0) {
+						self.methods.change(oldTime, newTime);
+						self.run();
+					} else {
+						self.finish();
+						return ;
+					}
+				}, 1000);
+			},
+			pause: function() {},				// 暂停
+			continue: function() {},			// 继续
+			finish: function() {				// 结束
+				this.state.__flag__ = false;
+				if (this.state.__timer__ != null) clearTimeout(this.state.__timer__);
+				this.state.time = 0;
+				this.methods.finish();
+			},
+			destroy: function() {				// 销毁
+				this.finish();
+				this.state = null;
+				this.props = null;
+			}
+		};
+
+		// 函数判断
+		function _isFunc(obj) {
+			return typeof obj === 'function';
+		}
+
+		return _CountDown;
+
+	})();
+
+
+
+
+	/**
 	 * cavas图片压缩
 	 * @param  {[type]}   file     [description]
 	 * @param  {Function} callback [description]
