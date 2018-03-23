@@ -820,8 +820,24 @@
 		return url ? url.substring(1) : '';
 	}
 
-
-
+	
+	/**
+	 * 判断一串url地址是否带有queryString
+	 * @param str 			{String}  需要检测的地址字符串
+	 * @param canBeforeHash	{Boolean} 是否可以携带hash值，默认false，如果开启，则类似于 "http://localhost/index-debug.html?v=20180208#/bbzx/xdrw/details" queryString写在hash之前的url亦可以通过
+	 * @returns 			{Boolean} 是否携带queryString
+	 *  类似：a=1&b=2&c=3
+	 */
+	function hasQueryString(str, canBeforeHash) {
+		var reg = null,
+			canBeforeHash = canBeforeHash != null ? canBeforeHash : false;
+		if (!canBeforeHash) {
+			reg = /\?\w+=\w+/g;
+		} else {
+			reg = /\?\w+=\w+[&|^]/g;
+		}
+        return reg.test(str);
+	}
 
 
 
