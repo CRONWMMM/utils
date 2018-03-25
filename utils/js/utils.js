@@ -925,7 +925,7 @@
 		/*
 			props: {
 				el: 【DOM-element】,						// DOM元素
-				initVal: 【Int】,							// 倒计时器初始值，截止日期时间戳，毫秒
+				initVal: 【Int】,							// 倒计时器初始值，持续的时间，毫秒
 				start: 【Func】,							// 开始的回调函数
 				finish: 【Func】,							// 结束的回调函数
 				change: 【Func @params: oldTime, newTime】	// 状态改变的回调函数
