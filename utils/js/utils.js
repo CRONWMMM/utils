@@ -1643,6 +1643,22 @@
 
 
 
+/* 对象操作 -------------------------------------------------------------------------------------- */
+	/**
+	 * 对象属性去空/undefined/null
+	 * @param target  {Object}   需要处理的原始对象，看好是“对象”
+	 * @param map     {Array}    map映射，target中需要处理的key字符串
+	 * @returns 	  {Object}   处理后的对象
+	 */
+	function ObjFilterEmptyField(target, map) {
+	    let ret = {}
+	    map.forEach(key => {
+	        if (target[key] !== '' && target[key] != null) ret[key] = target[key]
+	    })
+	    return ret
+	}
+
+
 
 
 
