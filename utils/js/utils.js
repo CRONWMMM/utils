@@ -1705,6 +1705,24 @@ U = {
 	}
 })()
 
+function findDeeplyList (target, callback, arr=[]) {
+    const flag = typeOf(target)
+
+    if (flag === 'array') {
+        for (let i = 0; i < target.length; i++) {
+            findDeeplyList(target[i], callback, arr)
+        }
+    }
+    else if (flag === 'object') {
+        if (callback(target)) {
+            arr.push(target)
+        }
+        for (let k in target) {
+            findDeeplyList(target[k], callback, arr)
+        }
+    }
+    return arr
+}
 
 
 /**
