@@ -1105,6 +1105,18 @@ U = {
         return num;
     },
 
+    /**
+     * 数字四舍五入
+     * @param number        需要操作的数字
+     * @param precision     需要保留位数
+     * @returns {number}    返回的数
+     */
+    round(number, precision) {
+        return Math.round(+number + 'e' + precision) / Math.pow(10, precision);
+        //same as:
+        //return Number(Math.round(+number + 'e' + precision) + 'e-' + precision);
+    }
+
 
 
 
