@@ -47,7 +47,7 @@
 let U = null
 
 U = {
-	/* base ------------------------------------------------------------------------------------------------------------------------ */
+	/* base 基础工具 ------------------------------------------------------------------------------------------------------------------------ */
     /**
      * 检测传入的参数类型
      * @param obj {All}	需要进行参数检测的对象
@@ -70,25 +70,25 @@ U = {
         return map[toString.call(obj)];
     },
     isNumber(obj) {
-        return typeOf(obj) === 'number' && !isNaN(obj) ? true : false
+        return this.typeOf(obj) === 'number' && !isNaN(obj) ? true : false
     },
     isNaN(obj) {
         return obj.toString() === 'NaN'
     },
     isString(obj) {
-        return typeOf(obf) === 'string' ? true : false
+        return this.typeOf(obj) === 'string' ? true : false
     },
     isFunction(obj) {
-        return typeOf(obj) === 'function' ? true : false
+        return this.typeOf(obj) === 'function' ? true : false
     },
     isArray(obj) {
-        return typeOf(obj) === 'array' ? true : false
+        return this.typeOf(obj) === 'array' ? true : false
     },
     isObject(obj) {
-        return typeOf(obj) === 'object' ? true : false
+        return this.typeOf(obj) === 'object' ? true : false
     },
     isUndefined(obj) {
-        return typeOf(obj) === 'undefined' ? true : false
+        return this.typeOf(obj) === 'undefined' ? true : false
     },
 
     /**
@@ -96,7 +96,8 @@ U = {
      * @param  {obj/arr/str}  检测对象
      */
     empty(obj){
-        if(typeof obj === "object"){
+        const typeOf = this.typeOf
+        if(typeOf(obj) === "object"){
             if(Array.isArray(obj)){			// array
                 return !obj.length>0
             }else{							// object
@@ -109,10 +110,23 @@ U = {
                         return len;
                     })(obj)>0;
             }
-        }else if(typeof obj === "string"){	// string
+        }else if(typeOf(obj) === "string"){	// string
             return !(obj.trim()).length>0
         }else{								// error
             throw new Error("empty函数接收的参数类型：对象、数组、字符串");
+        }
+    },
+
+    /**
+     * 辅助绑定函数
+     * 原生bind方法是使用柯里化的方式实现的，这边只是简化模式
+     * @param  {Function} fn  [description]
+     * @param  {[type]}   obj [description]
+     * @return {[type]}       [description]
+     */
+    bind(fn,obj){
+        return function(){
+            return fn.apply(obj,arguments);
         }
     },
 
@@ -142,6 +156,7 @@ U = {
         }
         return copy;
     },
+
     /**
      * 对象深度查找
      * @param target Object 需要处理的原始对象
@@ -199,14 +214,17 @@ U = {
         }
     },
 
-
+    /**
+     * 列表深度查找
+     * @param arr
+     * @param callback
+     * @returns {*}
+     */
     findDeeplyList(arr, callback) {
         const flag = typeOf(this)
         if (typeOf(arr) === 'function') {
             [callback, arr] = [arr, []]
         }
-
-
         if (flag === 'array') {
             for (let i = 0; i < this.length; i++) {
                 this[i].findDeeplyList(arr, callback)
@@ -224,7 +242,500 @@ U = {
     },
 
 
-	/* cookie 操作 ------------------------------------------------------------------------------------------------------------- */
+
+
+
+
+
+    /* 对象操作 -------------------------------------------------------------------------------------- */
+    /**
+     * 对象去空
+     * @param target  需要处理的目标对象
+     * @param keyList  指定操作的 keyString 组成的数组，非必传，如果传了这个参数，就不会再对别的空 Key 做处理
+     * @returns {Object}  处理后的对象
+     */
+    deleteObjEmpty(target, keyList) {
+        let ret = {}
+        if (keyList == null) {
+            for (let k in target) {
+                if (target[k] !== '' && target[k] != null) ret[k] = target[k]
+            }
+        } else {
+            ret = Object.assign({}, target)
+            keyList.forEach(k => {
+                if (ret[k] === '' || ret[k] == null) delete ret[k]
+            })
+        }
+        return ret
+    },
+
+    /**
+     * 筛选出目标对象里有的字段，目标对象里没有的字段剔除
+     * @param target    {Object}  目标比对对象
+     * @param obj       {Object}  处理对象
+     * @returns         {Object}  处理完成后的对象
+     */
+    objKeyFilter(target, obj) {
+        const keyList = Object.keys(target)
+        let ret = {}
+        keyList.forEach(k => {
+            ret[k] = obj[k] != null ? obj[k] : ''
+        })
+        return ret
+    },
+
+    /**
+     * 对象空属性用预制位字符串代替
+     * @param obj           {Object}  处理对象
+     * @param extendList    {Array}   存储 KeyString 的数组，用于检测额外属性，扩展 obj 对象
+     * @param preform       {String}  预制位
+     * @returns {{}}
+     */
+    objPreformReplace( obj = {}, extendList = [], preform = '--') {
+        for (let k in obj) {
+            // 如果 value 为空或为 Null / undefined，就用 preform 代替这个字段
+            if (obj[k] === '' || obj[k] == null) obj[k] = preform
+        }
+        extendList.forEach(k => {
+            if (obj[k] === '' || obj[k] == null) obj[k] = preform
+        })
+        return obj
+    },
+
+
+    /* 数组操作 -------------------------------------------------------------------------------------- */
+    /**
+     * 判断一个元素是否在目标对象中
+     * @param target   待判断的元素
+     * @param arr      目标对象
+     * @returns {boolean}
+     */
+    inArray(target, arr) {
+        for (let i = 0,item; i < arr.length; i++) {
+            item = arr[i]
+            if (target === item) return true
+        }
+        return false
+    },
+
+    /**
+     * 数组去重，【ES5去重方式，ES6可以使用Set结构进行去重】
+     * @param  {Array} arr 需要处理的数组
+     * @return {Array}     处理完成后的数组
+     */
+    dedupe(arr) {
+        if (Set) {
+            return Array.from(new Set(arr))
+        } else {
+            let ret = []
+            for (let i = 0, flag = true, item; item = arr[i++]; flag = true) {
+                loop:
+                    for (let k = 0, unit; unit = ret[k++];) {
+                        if (unit === item) {
+                            flag = false
+                            break loop
+                        }
+                    }
+                if (flag) ret.push(item)
+            }
+            return ret
+        }
+    },
+
+    /**
+     * 数组提取，不改变原数组
+     * @param  {Array}  arr   需要进行操作的原始数组
+     * @param  {Number} start 截取的初始位置
+     * @param  {Number} num   需要截取的个数
+     * @return {Array}        截取完成后返回的新数组
+     *
+     * Test:
+     * [1,2,32,'sds','asd',90,'piis']
+     *
+     *
+     */
+    copypart(arr, start, num) {
+        let ret = []
+        if (typeof num === 'number') {
+            ret = arr.slice(start, start + num)
+        } else {
+            ret = arr.slice(start)
+        }
+        return ret
+    },
+
+    /**
+     * 数组随机排序
+     * @param  {Array} arr 需要进行排序操作的数组
+     * @return {Array}     排序完成后的新数组
+     *
+     * Test:
+     * [1,2,32,'sds','asd',90,'piis']
+     *
+     *
+     */
+    randomSort(arr) {
+        let ret = []
+
+        while (arr.length > 0) {
+            let random = ((min, max) => {
+                    let range = Math.abs(max - min),
+                        rand = Math.random(),
+                        num = min + Math.round(rand * range)
+                    return num
+                })(0, arr.length),
+                item = arr.splice(random, 1)
+            ret.push(...item)
+        }
+        return ret
+    },
+
+    /**
+     * 洗牌函数，和上面数组随机排序一样，上面是自己第一遍写的，比较繁琐，这个算法更秀
+     * 方法就是遍历需要打乱的数组，然后从中随机抽取两个元素交换位置。
+     * @param  {Array} arr 需要打乱的数组
+     * @return {Array}     打乱后的数组
+     */
+    shuffle(arr) {
+
+        let _arr = arr.slice()
+
+        for (let i = 0, len = _arr.length; i < len; i++) {
+            let j = getRandomInt(0, i),
+                t = _arr[i]
+            console.log(j)
+            _arr[i] = _arr[j]
+            _arr[j] = t
+        }
+
+        return _arr
+
+        // 随机范围整数【左右都开】
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (Math.abs(max - min) + 1) + min)
+        }
+    },
+
+    /**
+     * 按照英文字母对数组排序，代码仍需改进，不是很健壮
+     * @param arr Array 需要进行排序操作的数组对象
+     * @param [key] String 如果传入的话必须是作为Key值的字符串
+     * 告诉程序需要按照当前对象的哪个key对应的value值排序
+     *
+     * @param flag Boolean 是否倒序，默认false按正序排列，设置为true则倒序
+     * @return Array 返回排序后的数组对象
+     *
+     *
+     * Test1:
+     * var arr = ['D','B','G','e','F','a','z','T','A'];
+     * sortByInitials(arr);
+     *
+     * Expect1:
+     * ["a", "A", "B", "D", "e", "F", "G", "T", "z"]
+     *
+     *
+     *
+     *
+     *
+     * Test2:
+     * var arr = ['D','B','G','e','F','a','z','T','A'];
+     * sortByInitials(arr,true);
+     *
+     * Expect2:
+     * ["z", "T", "G", "F", "e", "D", "B", "a", "A"]
+     *
+     *
+     *
+     * Test3:
+     * var arr = [{title: 'A'},{title: 'z'},{title: 'Q'},{title: 'w'},{title: 'v'}];
+     * sortByInitials(arr);
+     *
+     * Expect3:
+     * [{title: 'A'},{title: 'Q'},{title: 'v'},{title: 'w'},{title: 'z'}]
+     *
+     *
+     */
+    sortByInitials(arr, key, flag) {
+        return arr.sort(function (a, b) {
+            let type = this.typeOf(key),
+                regStr = 'boolean undefined',
+                result = regStr.indexOf(type) >= 0,
+                isReverse = result ? !!key : !!flag,
+                prevVal = result ? a.toUpperCase() : a[key].toUpperCase(),
+                nextVal = result ? b.toUpperCase() : b[key].toUpperCase();
+            return !isReverse ? prevVal.charCodeAt() - nextVal.charCodeAt() :
+                nextVal.charCodeAt() - prevVal.charCodeAt()
+        })
+    },
+
+    /**数组扁平化，拉伸数组
+     * @param arr Array 需要操作的数组对象
+     * @return Array 返回拉伸后的数组对象
+     *
+     *
+     * Test:
+     * var foo1 = [1, [2, 3], [4, 5, [6, 7, [8]]], [9], 10];
+     * stretchArr(foo1);
+     *
+     *
+     * Expect:
+     * ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+     *
+     *
+     * PS: 拉伸后的数组元素为String
+     */
+    stretchArr(arr){
+        if(!Array.isArray(arr)) console.error("请传入一个数组");
+        return arr.join(",").split(",");
+    },
+
+    /**筛选数据，用于echarts数据可视化
+     * @param target obj/arr 需要进行筛选的目标对象
+     * @param field str 需要提取的字段名称
+     * @return Array 返回一个包含需要字段信息的数组
+     *
+     *
+     * Test:
+     * var target = [{count:123},{count:3452},[{a:0,count:8909}]]
+     * filterData(target,count);
+     *
+     *
+     * Expect:
+     * [123,3452,8909]
+     *
+     *
+     * PC: 此方法编写目的是用于Echarts所需data数据的提取
+     */
+    filterData(target,field,arr) {
+        "use strict";
+        var arr = (typeof arr === "array") ? arr : [];
+        if(typeof field !== "string")console.error("传入_pickUpData函数的参数不合法");
+        if(arguments.length < 2)console.error("至少传入_pickUpData函数两个参数");
+        if(Array.isArray(target)){	// isArray
+            target.forEach(function(item,index){
+                if(typeof item === 'object')Array.prototype.push.apply(arr,filterData(item,field,arr));
+            });
+        }else if(typeof target === "object"){	// isObject
+            if(Array.isArray(target[field])){
+                if (typeof extend === 'function') {
+                    arr.push(...extend(target[field], true));	// just for ES6
+                }
+                else{
+                    throw new Error('Can\'t find function: \'extend\'');
+                }
+            }
+            else if(typeof target[field] !== "undefined"){
+                arr.push(target[field]);	// if has found, just push it in target array
+            }
+            else{
+                for(var key in target){		// Otherwise, the recursive loop is executed
+                    Array.prototype.push.apply(arr,filterData(target[key],field,arr))
+                }
+            }
+        }else{
+            return;
+        }
+        return arr;
+    },
+
+    /**
+     * 数组去空【空字符串 null undefined】
+     * @param arr Array 需要处理的原始数组
+     * @return Array 处理后的数组对象
+     *
+     */
+    arrayDeleteEmpty(arr) {
+        const typeOf = this.typeOf
+        let clean = []
+        let target = 'null undefined'
+
+        for (let i = 0, len = arr.length; i < len; i++) {
+            let item = arr[i]
+            let type = typeOf(item)
+            if (type === 'string' && empty(item) || target.indexOf(type) >= 0)
+                continue
+            clean.push(item)
+        }
+        return clean
+    },
+
+    /**
+     * 引用比较，用于将两个数组结构的每一项两两比较，通过筛选函数筛选出双方符合条件的、第一次找到的一对索引
+     * @param target1           数组1
+     * @param target2           数组2
+     * @param filter            筛选函数，接收两项，需要返回一个布尔值
+     * @param cb                筛选函数返回true执行的回调函数，接收两个索引
+     * @returns {Object/null}   装有一对索引的对象或者是null
+     */
+    refCompare(target1, target2, filter, cb) {
+        for (let i = 0, item; i < target1.length; i++) {
+            item = target1[i]
+            for (let k = 0, part; k < target2.length; k++) {
+                part = target2[k]
+                if (filter(item, part)) cb && cb(i, k)
+            }
+        }
+    },
+
+
+
+
+
+    /* 字符串操作 ---------------------------------------------------------------------------------------------------------- */
+    /**
+     * 首字母大写
+     * @param str {string} 需要处理的字符串
+     * @return {String} 处理后的字符串
+     */
+    firstUpperCase(str) {
+        let string = str.toString();
+        return string[0].toUpperCase() + string.slice(1);
+    },
+
+    /**
+     * 指定长度的随机字符串
+     * @param len {Number} 需要生成的随机字符串长度
+     * @return {String}    生成的随机字符串
+     */
+    random_string(len) {
+        len = len || 32;
+        var chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
+        var maxPos = chars.length;
+        var pwd = '';
+        for (i = 0; i < len; i++) {
+            pwd += chars.charAt(Math.floor(Math.random() * maxPos));
+        }
+        return pwd;
+    },
+
+    /**
+     * 获取文件后缀
+     * @param filename    {String}  文件名
+     * @param separator   {Boolean} 是否要分隔符，默认不需要
+     * @returns {string}
+     */
+    get_suffix(filename, separator=false) {
+        let pos = separator ? filename.lastIndexOf('.') : filename.lastIndexOf('.') + 1,
+            suffix = ''
+        if (pos != -1) {
+            suffix = filename.substring(pos)
+        }
+        return suffix
+    },
+
+
+    /* 输入过滤 ---------------------------------------------------------------------------------------------------------- */
+    /**
+     * 数字输入过滤函数，写的比较繁琐，后面要优化
+     * @param input         输入数据
+     * @param fractionNum   需要保留的小数位数，可不传
+     * @returns {String}    过滤完成后的数据
+     */
+    numberFilter(input,fractionNum) {
+        var input = input.split('') || [],
+            fractionNum = !isNaN(fractionNum-0) ? fractionNum : 0,    // 小数位数
+            pointFlag = true,       // 是否能够输入小数点
+            pointIndex,             // 小数点位置
+            output = [];            // 输出数组
+        input.forEach(function(value,key){
+            if(!isNaN(value-0)){    // 输入的为数字
+                if(fractionNum){   // 允许小数情况
+                    if(pointFlag){  // 能够输入小数
+                        output.push(value);
+                    }else{     // 已经输入过，不能再输入小数
+                        if(key<=fractionNum+pointIndex){
+                            output.push(value);
+                        }
+                    }
+                }else{  // 不允许小数
+                    if(key == 0 && value==0){
+
+                    }else{
+                        output.push(value);
+                    }
+                }
+            }else if(value === '.'){    // 输入为'.'
+                if(pointFlag && fractionNum){
+                    if(key === 0){
+                        output.push('0','.');
+                    }else if(key > 0){
+                        output.push('.');
+                    }
+                    pointIndex = key;
+                    pointFlag = false;
+                }
+            }
+        });
+        output = output.join('');
+        return output;
+
+        /**
+         * 判断NaN
+         * @param target 需要进行检测的目标对象
+         */
+        function isNaN(target) {
+            return target.toString() === 'NaN'
+        }
+    },
+
+    /**
+     * 计算折扣函数，此函数属于业务工具函数，不具有通用性
+     * @param originNum   折扣小数
+     * @param x           保留位数【选传】
+     * @returns {Sting}   处理完成后带 % 号的折扣字符串
+     */
+    calcDiscount(originNum, x) {
+        let discString = originNum * 100 + '',
+            list = discString.split('.'),
+            disc
+        if (list[0] === '100') {
+            disc = '100%'
+            return disc
+        }
+        if (list[1]) {
+            list[1] = list[1].substr(0, Number(x) || 0)
+            disc = list.join('.') + '%'
+        } else {
+            disc = list.join('') + '%'
+        }
+        return disc
+    },
+
+
+
+    /* 数字操作 ------------------------------------------------------------------------------------------------------------------------------------- */
+    /**
+     * 范围随机数
+     * @param min Number 最小数字
+     * @param max Number 最大数字
+     * @return Number 	 生成的随机数
+     *
+     */
+    randomNum(Min, Max) {
+        let Range = Math.abs(Max - Min),
+            Rand = Math.random(),
+            num = Min + Math.round(Rand * Range); //四舍五入
+        return num;
+    },
+
+    /**
+     * 数字四舍五入
+     * @param number        需要操作的数字
+     * @param precision     需要保留位数
+     * @returns {number}    返回的数
+     */
+    round(number, precision) {
+        return Math.round(+number + 'e' + precision) / Math.pow(10, precision);
+        //same as:
+        //return Number(Math.round(+number + 'e' + precision) + 'e-' + precision);
+    },
+
+
+
+
+
+
+    /* cookie 操作 ------------------------------------------------------------------------------------------------------------- */
     /**
      * 设置cookie/清除cookie
      * @param name {string}	设置的cookie名
@@ -252,18 +763,6 @@ U = {
         }
         return '';
     },
-    /**
-     * 辅助绑定函数
-     * 原生bind方法是使用柯里化的方式实现的，这边只是简化模式
-     * @param  {Function} fn  [description]
-     * @param  {[type]}   obj [description]
-     * @return {[type]}       [description]
-     */
-    bind(fn,obj){
-        return function(){
-            return fn.apply(obj,arguments);
-        }
-    },
 
 
 	/* localStorage 操作 ----------------------------------------------------------------------------------------------------- */
@@ -276,9 +775,10 @@ U = {
     setStorage (key, value) {
         if (!window.localStorage)
             throw new Error('大兄弟，你的浏览器不支持localStorage');
+        const typeOf = this.typeOf
         var storage = window.localStorage,
-            key = typeof key === 'string' ? key : key.toString(),
-            value = typeof value === 'string' ? value : JSON.stringify(value);
+            key = typeOf(key) === 'string' ? key : key.toString(),
+            value = typeOf(value) === 'string' ? value : JSON.stringify(value);
         storage.setItem(key, value);
     },
 
@@ -289,8 +789,9 @@ U = {
     getStorage (key) {
         if (!window.localStorage)
             throw new Error('大兄弟，你的浏览器不支持localStorage');
+        const typeOf = this.typeOf
         var storage = window.localStorage,
-            key = typeof key === 'string' ? key : key.toString(),
+            key = typeOf(key) === 'string' ? key : key.toString(),
             data = storage.getItem(key);
         return !!data ? JSON.parse(data) : null;
     },
@@ -311,31 +812,11 @@ U = {
     removeStorage (key) {
         if (!window.localStorage)
             throw new Error('大兄弟，你的浏览器不支持localStorage');
+        const typeOf = this.typeOf
         var storage = window.localStorage,
-            key = typeof key === 'string' ? key : key.toString();
+            key = typeOf(key) === 'string' ? key : key.toString();
         storage.removeItem(key);
     },
-
-	/* prefix 添加前缀 ------------------------------------------------------------------------------------------------------ */
-    /**
-     * JS动态添加行内样式前缀
-     * @return {String} 处理过的样式名称
-     */
-    prefixStyle(style) {
-        if (typeof clientJudge === 'undefined') console.error('还没判断浏览器类型，调用个鸡儿的prefixStyle方法啊 (╯°Д°)╯︵ ┻━┻')
-        if (clientJudge === false) {
-            console.error(`你的浏览器不支持 ${style} 属性`)
-        }
-        else if (clientJudge === 'standard') {
-            return style
-        }
-        else {
-            // JS里的样式属性名需要写成驼峰
-            return clientJudge + style.charAt(0).toUpperCase() + style.substr(1)
-        }
-    },
-
-
 
 
 
@@ -399,6 +880,29 @@ U = {
         return device;
     },
 
+    /**
+     * 用户浏览器内核判断
+     * @return {String / (Boolean)} 浏览器内核名称 (检测不到返回false)
+     */
+    clientJudge() {
+
+        let elStyle = document.createElement('div').style
+
+        const transformName = {
+            webkit: 'webkitTransform',
+            O: 'OTransform',
+            ms: 'msTransform',
+            standard: 'transform'
+        }
+
+        for (let k in transformName) {
+            if (elStyle[transformName[k]] !== undefined) {
+                return k
+            }
+        }
+        return false
+
+    },
 
 
 
@@ -506,6 +1010,52 @@ U = {
     },
 
     /**
+     * 轮询函数 --- callback 模式
+     * @param judgeFunc { Function }    判断函数，每次轮询通过这个判断函数执行结果，来判断是否完成轮询
+     * @param callBack  { Function }    完成轮询执行的回调
+     * @param interval  { Number }      轮询间隔
+     * @param list      { like-array }  传入回调函数中的额外参数
+     */
+    polling(judgeFunc, callBack, interval = 10, ...list) {
+        const flag = this.typeOf(judgeFunc) === 'function' && judgeFunc()
+        if (flag) {
+            callBack(...list)
+        } else {
+            setTimeout(() => {
+                this.polling(judgeFunc, callBack, interval, ...list)
+            }, interval)
+        }
+    },
+
+    /**
+     * 节流器
+     */
+    Throttle: class {
+        constructor(interval = 200) {
+            this._timeoutId = null
+            this._interval = interval
+            this.funcPool = []
+        }
+        add(...funcList) {
+            this.funcPool.push(...funcList)
+        }
+
+        remove(func) {
+            this.funcPool = this.funcPool.filter(item => item !== func)
+        }
+
+        handle(...args) {
+            const funcPool = this.funcPool
+            if (this._timeoutId != null) clearTimeout(this._timeoutId)
+            this._timeoutId = setTimeout(() => {
+                funcPool.forEach(func => {
+                    func(...args)
+                })
+            }, this._interval)
+        }
+    },
+
+    /**
      * 向前补零函数【播放器时长计算等】
      * @param  {Number} num 需要处理的数字
      * @param  {Number} n   需要补的位数
@@ -591,30 +1141,6 @@ U = {
     },
 
     /**
-     * 用户浏览器内核判断
-     * @return {String / (Boolean)} 浏览器内核名称 (检测不到返回false)
-     */
-    clientJudge() {
-
-        let elStyle = document.createElement('div').style
-
-        const transformName = {
-            webkit: 'webkitTransform',
-            O: 'OTransform',
-            ms: 'msTransform',
-            standard: 'transform'
-        }
-
-        for (let k in transformName) {
-            if (elStyle[transformName[k]] !== undefined) {
-                return k
-            }
-        }
-        return false
-
-    },
-
-    /**
      * base64转换二进制
      * @param  {[type]}   base64   [description]
      * @param  {Function} callback [description]
@@ -640,8 +1166,6 @@ U = {
         }
         callback(blob);
     },
-
-
 
     /**
      * 批量预加载图片函数，没试过，可能有Bug
@@ -684,6 +1208,74 @@ U = {
         })
     },
 
+    /**
+     * downLoadFile          下载网络资源文件
+     * @param  {String}  url 资源文件地址
+     */
+    downloadFile(url) {
+        const suffixList = [ 'jpg', 'jpeg', 'png', 'gif' ]
+        let iframe = document.getElementById('iframeReportImg'),
+            list = url.split('.'),
+            length = list.length,
+            urlSuffix = '',
+            isImgFile = false,
+            aElement = document.createElement('a')
+        if (length === 0) return console.error('downloadFile 文件下载函数传入的资源地址不合法')
+        urlSuffix = list[length - 1].toLowerCase()
+
+        for (let i = 0, len = suffixList.length, item; i < len; i++) {
+            item = suffixList[i]
+            if (item === String(urlSuffix)) {
+                isImgFile = true
+                break;
+            }
+        }
+
+        // 如果是非图片类型文件
+        if (!isImgFile)
+            return window.location.href = url
+
+        // 图片类型文件
+        if (aElement.download != null) {    // 如果浏览器支持 a.download
+            aElement.download = url
+            aElement.href = url
+            aElement.target = '_blank'
+            document.body.appendChild(aElement)
+            aElement.click()
+            document.body.removeChild(aElement)
+        } else {    // 否则
+            _createIframe(url)
+        }
+
+        function _createIframe(imgSrc) {
+            //如果隐藏的iframe不存在则创建
+            if (iframe == null) {
+                iframe = document.createElement('iframe')
+                iframe.style.display = 'none'
+                iframe.width = 0
+                iframe.height = 0
+                iframe.id = 'iframeReportImg'
+                iframe.name="iframeReportImg"
+                iframe.src = 'about:blank'
+                document.body.appendChild(iframe)
+                iframe.addEventListener('load', _downloadImg, false)
+            }
+            //iframe的src属性如不指向图片地址,则手动修改,加载图片
+            if (String(iframe.src) != imgSrc) {
+                iframe.src = imgSrc
+            } else {
+                //如指向图片地址,直接调用下载方法
+                _downloadImg()
+            }
+        }
+        //下载图片的函数
+        function _downloadImg() {
+            //iframe的src属性不为空,调用execCommand(),保存图片
+            if (iframe.src != "about:blank") {
+                window.frames["iframeReportImg"].document.execCommand("SaveAs");
+            }
+        }
+    },
 
 
 
@@ -710,329 +1302,23 @@ U = {
         document.documentElement.style.fontSize = document.documentElement.clientWidth * 100 / size + 'px';
     },
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /* 数组操作 -------------------------------------------------------------------------------------- */
-
     /**
-     * 判断一个元素是否在目标对象中
-     * @param target   待判断的元素
-     * @param arr      目标对象
-     * @returns {boolean}
+     * JS动态添加行内样式前缀
+     * @return {String} 处理过的样式名称
      */
-    inArray(target, arr) {
-        for (let i = 0,item; i < arr.length; i++) {
-            item = arr[i]
-            if (target === item) return true
+    prefixStyle(style) {
+        if (typeof this.clientJudge === 'undefined') console.error('还没判断浏览器类型，调用个鸡儿的prefixStyle方法啊 (╯°Д°)╯︵ ┻━┻')
+        if (this.clientJudge === false) {
+            console.error(`你的浏览器不支持 ${style} 属性`)
         }
-        return false
-    },
-
-    /**
-     * 数组去重，【ES5去重方式，ES6可以使用Set结构进行去重】
-     * @param  {Array} arr 需要处理的数组
-     * @return {Array}     处理完成后的数组
-     */
-    dedupe(arr) {
-        if (Set) {
-            return Array.from(new Set(arr))
-        } else {
-            let ret = []
-            for (let i = 0, flag = true, item; item = arr[i++]; flag = true) {
-                loop:
-                    for (let k = 0, unit; unit = ret[k++];) {
-                        if (unit === item) {
-                            flag = false
-                            break loop
-                        }
-                    }
-                if (flag) ret.push(item)
-            }
-            return ret
+        else if (this.clientJudge === 'standard') {
+            return style
+        }
+        else {
+            // JS里的样式属性名需要写成驼峰
+            return this.clientJudge + style.charAt(0).toUpperCase() + style.substr(1)
         }
     },
-
-
-    /**
-     * 数组提取，不改变原数组
-     * @param  {Array}  arr   需要进行操作的原始数组
-     * @param  {Number} start 截取的初始位置
-     * @param  {Number} num   需要截取的个数
-     * @return {Array}        截取完成后返回的新数组
-     *
-     * Test:
-     * [1,2,32,'sds','asd',90,'piis']
-     *
-     *
-     */
-    copypart(arr, start, num) {
-        let ret = []
-        if (typeof num === 'number') {
-            ret = arr.slice(start, start + num)
-        } else {
-            ret = arr.slice(start)
-        }
-        return ret
-    },
-
-
-    /**
-     * 数组随机排序
-     * @param  {Array} arr 需要进行排序操作的数组
-     * @return {Array}     排序完成后的新数组
-     *
-     * Test:
-     * [1,2,32,'sds','asd',90,'piis']
-     *
-     *
-     */
-    randomSort(arr) {
-        let ret = []
-
-        while (arr.length > 0) {
-            let random = ((min, max) => {
-                    let range = Math.abs(max - min),
-                        rand = Math.random(),
-                        num = min + Math.round(rand * range)
-                    return num
-                })(0, arr.length),
-                item = arr.splice(random, 1)
-            ret.push(...item)
-        }
-        return ret
-    },
-
-
-    /**
-     * 洗牌函数，和上面数组随机排序一样，上面是自己第一遍写的，比较繁琐，这个算法更秀
-     * 方法就是遍历需要打乱的数组，然后从中随机抽取两个元素交换位置。
-     * @param  {Array} arr 需要打乱的数组
-     * @return {Array}     打乱后的数组
-     */
-    shuffle(arr) {
-
-        let _arr = arr.slice()
-
-        for (let i = 0, len = _arr.length; i < len; i++) {
-            let j = getRandomInt(0, i),
-                t = _arr[i]
-            console.log(j)
-            _arr[i] = _arr[j]
-            _arr[j] = t
-        }
-
-        return _arr
-
-        // 随机范围整数【左右都开】
-        function getRandomInt(min, max) {
-            return Math.floor(Math.random() * (Math.abs(max - min) + 1) + min)
-        }
-    },
-
-
-    /**
-     * 按照英文字母对数组排序，代码仍需改进，不是很健壮
-     * @param arr Array 需要进行排序操作的数组对象
-     * @param [key] String 如果传入的话必须是作为Key值的字符串
-     * 告诉程序需要按照当前对象的哪个key对应的value值排序
-     *
-     * @param flag Boolean 是否倒序，默认false按正序排列，设置为true则倒序
-     * @return Array 返回排序后的数组对象
-     *
-     *
-     * Test1:
-     * var arr = ['D','B','G','e','F','a','z','T','A'];
-     * sortByInitials(arr);
-     *
-     * Expect1:
-     * ["a", "A", "B", "D", "e", "F", "G", "T", "z"]
-     *
-     *
-     *
-     *
-     *
-     * Test2:
-     * var arr = ['D','B','G','e','F','a','z','T','A'];
-     * sortByInitials(arr,true);
-     *
-     * Expect2:
-     * ["z", "T", "G", "F", "e", "D", "B", "a", "A"]
-     *
-     *
-     *
-     * Test3:
-     * var arr = [{title: 'A'},{title: 'z'},{title: 'Q'},{title: 'w'},{title: 'v'}];
-     * sortByInitials(arr);
-     *
-     * Expect3:
-     * [{title: 'A'},{title: 'Q'},{title: 'v'},{title: 'w'},{title: 'z'}]
-     *
-     *
-     */
-    sortByInitials(arr, key, flag) {
-        return arr.sort(function (a, b) {
-            let type = typeOf(key),
-                regStr = 'boolean undefined',
-                result = regStr.indexOf(type) >= 0,
-                isReverse = result ? !!key : !!flag,
-                prevVal = result ? a.toUpperCase() : a[key].toUpperCase(),
-                nextVal = result ? b.toUpperCase() : b[key].toUpperCase();
-            return !isReverse ? prevVal.charCodeAt() - nextVal.charCodeAt() :
-                nextVal.charCodeAt() - prevVal.charCodeAt()
-        })
-    },
-
-
-
-    /**数组扁平化，拉伸数组
-     * @param arr Array 需要操作的数组对象
-     * @return Array 返回拉伸后的数组对象
-     *
-     *
-     * Test:
-     * var foo1 = [1, [2, 3], [4, 5, [6, 7, [8]]], [9], 10];
-     * stretchArr(foo1);
-     *
-     *
-     * Expect:
-     * ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
-     *
-     *
-     * PS: 拉伸后的数组元素为String
-     */
-    stretchArr(arr){
-        if(!Array.isArray(arr)) console.error("请传入一个数组");
-        return arr.join(",").split(",");
-    },
-
-
-    /**筛选数据，用于echarts数据可视化
-     * @param target obj/arr 需要进行筛选的目标对象
-     * @param field str 需要提取的字段名称
-     * @return Array 返回一个包含需要字段信息的数组
-     *
-     *
-     * Test:
-     * var target = [{count:123},{count:3452},[{a:0,count:8909}]]
-     * filterData(target,count);
-     *
-     *
-     * Expect:
-     * [123,3452,8909]
-     *
-     *
-     * PC: 此方法编写目的是用于Echarts所需data数据的提取
-     */
-    filterData(target,field,arr) {
-        "use strict";
-        var arr = (typeof arr === "array") ? arr : [];
-        if(typeof field !== "string")console.error("传入_pickUpData函数的参数不合法");
-        if(arguments.length < 2)console.error("至少传入_pickUpData函数两个参数");
-        if(Array.isArray(target)){	// isArray
-            target.forEach(function(item,index){
-                if(typeof item === 'object')Array.prototype.push.apply(arr,filterData(item,field,arr));
-            });
-        }else if(typeof target === "object"){	// isObject
-            if(Array.isArray(target[field])){
-                if (typeof extend === 'function') {
-                    arr.push(...extend(target[field], true));	// just for ES6
-                }
-                else{
-                    throw new Error('Can\'t find function: \'extend\'');
-                }
-            }
-            else if(typeof target[field] !== "undefined"){
-                arr.push(target[field]);	// if has found, just push it in target array
-            }
-            else{
-                for(var key in target){		// Otherwise, the recursive loop is executed
-                    Array.prototype.push.apply(arr,filterData(target[key],field,arr))
-                }
-            }
-        }else{
-            return;
-        }
-        return arr;
-    },
-
-
-
-    /**
-     * 数组去空【空字符串 null undefined】
-     * @param arr Array 需要处理的原始数组
-     * @return Array 处理后的数组对象
-     *
-     */
-    arrayDeleteEmpty(arr) {
-        let clean = []
-        let target = 'null undefined'
-
-        for (let i = 0, len = arr.length; i < len; i++) {
-            let item = arr[i]
-            let type = typeOf(item)
-            if (type === 'string' && empty(item) || target.indexOf(type) >= 0)
-                continue
-            clean.push(item)
-        }
-        return clean
-    },
-
-    /**
-     * 引用比较，用于将两个数组结构的每一项两两比较，通过筛选函数筛选出双方符合条件的、第一次找到的一对索引
-     * @param target1           数组1
-     * @param target2           数组2
-     * @param filter            筛选函数，接收两项，需要返回一个布尔值
-     * @param cb                筛选函数返回true执行的回调函数，接收两个索引
-     * @returns {Object/null}   装有一对索引的对象或者是null
-     */
-    refCompare(target1, target2, filter, cb) {
-        for (let i = 0, item; i < target1.length; i++) {
-            item = target1[i]
-            for (let k = 0, part; k < target2.length; k++) {
-                part = target2[k]
-                if (filter(item, part)) cb && cb(i, k)
-            }
-        }
-    },
-
-
-
-
-
-
-
-
-
-
-
-
-    /* 对象操作 -------------------------------------------------------------------------------------- */
-    /**
-     * 对象去空
-     * @param target  需要处理的目标对象
-     * @returns {Object}  处理后的对象
-     */
-    deleteObjEmpty(target) {
-        let ret = {}
-        for (let k in target) {
-            if (target[k] !== '' && target[k] != null) ret[k] = target[k]
-        }
-        return ret
-    },
-
-
-
 
 
 
@@ -1087,157 +1373,7 @@ U = {
 
 
 
-
-
-
-    /* 数字操作 ------------------------------------------------------------------------------------------------------------------------------------- */
-    /**
-     * 范围随机数
-     * @param min Number 最小数字
-     * @param max Number 最大数字
-     * @return Number 	 生成的随机数
-     *
-     */
-    randomNum(Min, Max) {
-        let Range = Math.abs(Max - Min),
-            Rand = Math.random(),
-            num = Min + Math.round(Rand * Range); //四舍五入
-        return num;
-    },
-
-    /**
-     * 数字四舍五入
-     * @param number        需要操作的数字
-     * @param precision     需要保留位数
-     * @returns {number}    返回的数
-     */
-    round(number, precision) {
-        return Math.round(+number + 'e' + precision) / Math.pow(10, precision);
-        //same as:
-        //return Number(Math.round(+number + 'e' + precision) + 'e-' + precision);
-    }
-
-
-
-
-
-
-
-
-    /* 字符串操作 ---------------------------------------------------------------------------------------------------------- */
-    /**
-     * 首字母大写
-     * @param str {string} 需要处理的字符串
-     * @return {String} 处理后的字符串
-     */
-    firstUpperCase(str) {
-        let string = str.toString();
-        return string[0].toUpperCase() + string.slice(1);
-    },
-
-
-    /**
-     * 指定长度的随机字符串
-     * @param len {Number} 需要生成的随机字符串长度
-     * @return {String}    生成的随机字符串
-     */
-    random_string(len) {
-        len = len || 32;
-        var chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
-        var maxPos = chars.length;
-        var pwd = '';
-        for (i = 0; i < len; i++) {
-            pwd += chars.charAt(Math.floor(Math.random() * maxPos));
-        }
-        return pwd;
-    },
-
-
-
-
-    /* 输入过滤 ---------------------------------------------------------------------------------------------------------- */
-    /**
-     * 数字输入过滤函数，写的比较繁琐，后面要优化
-     * @param input         输入数据
-     * @param fractionNum   需要保留的小数位数，可不传
-     * @returns {String}    过滤完成后的数据
-     */
-    numberFilter(input,fractionNum) {
-        var input = input.split('') || [],
-            fractionNum = !isNaN(fractionNum-0) ? fractionNum : 0,    // 小数位数
-            pointFlag = true,       // 是否能够输入小数点
-            pointIndex,             // 小数点位置
-            output = [];            // 输出数组
-        input.forEach(function(value,key){
-            if(!isNaN(value-0)){    // 输入的为数字
-                if(fractionNum){   // 允许小数情况
-                    if(pointFlag){  // 能够输入小数
-                        output.push(value);
-                    }else{     // 已经输入过，不能再输入小数
-                        if(key<=fractionNum+pointIndex){
-                            output.push(value);
-                        }
-                    }
-                }else{  // 不允许小数
-                    if(key == 0 && value==0){
-
-                    }else{
-                        output.push(value);
-                    }
-                }
-            }else if(value === '.'){    // 输入为'.'
-                if(pointFlag && fractionNum){
-                    if(key === 0){
-                        output.push('0','.');
-                    }else if(key > 0){
-                        output.push('.');
-                    }
-                    pointIndex = key;
-                    pointFlag = false;
-                }
-            }
-        });
-        output = output.join('');
-        return output;
-
-        /**
-         * 判断NaN
-         * @param target 需要进行检测的目标对象
-         */
-        function isNaN(target) {
-            return target.toString() === 'NaN'
-        }
-    },
-
-
-
-    /* 文件操作 ---------------------------------------------------------------------------------------------------------- */
-
-    /**
-     * 获取文件后缀
-     * @param filename    {String}  文件名
-     * @param separator   {Boolean} 是否要分隔符，默认不需要
-     * @returns {string}
-     */
-    get_suffix(filename, separator=false) {
-        let pos = separator ? filename.lastIndexOf('.') : filename.lastIndexOf('.') + 1,
-            suffix = ''
-        if (pos != -1) {
-            suffix = filename.substring(pos)
-        }
-        return suffix
-    },
-
-
-
-
-
-
-
-
-
     /* DOM 操作 ---------------------------------------------------------------------------------------------------------- */
-
     /*
      * 判断元素是否有某个className
      * @param el {object} 目标元素
@@ -1248,7 +1384,6 @@ U = {
         var reg = new RegExp('(^|\\s)' + className + '(\\s|$)');
         return reg.test(el.className)
     },
-
 
     /*
      * 为选定的元素添加className
@@ -1262,7 +1397,6 @@ U = {
         newClass.push(className);
         el.className = newClass.join(' ');
     },
-
 
     /*
      * 为选定的元素删除className
@@ -1281,7 +1415,6 @@ U = {
         var newClassName = classArr.join(' ');
         el.className = newClassName;
     },
-
 
     /*
      * 获取元素相对页面的offset
@@ -1362,7 +1495,6 @@ U = {
         }
     },
 
-
     /**
      * 脚本动态处理，动态插入或者动态卸载
      * @param src           {String}    需要加载脚本的 src 地址
@@ -1421,8 +1553,8 @@ U = {
 
 
 
-    /* 光标操作 ---------------------------------------------------------------------------------------------------------- */
 
+    /* 光标操作 ---------------------------------------------------------------------------------------------------------- */
     /**
      * 获取光标位置
      * @param  {Object} textDom   要获取光标位置的DOM元素
@@ -1442,8 +1574,6 @@ U = {
         }
         return cursorPos;
     },
-
-
 
     /**
      * 设置光标位置
@@ -1465,7 +1595,6 @@ U = {
         }
     },
 
-
     /**
      * 获取选中文本
      * @return {tString} text 选中的文本
@@ -1484,9 +1613,6 @@ U = {
         }
         return text;
     },
-
-
-
 
     /**
      * 选中特定范围的文本
@@ -1532,8 +1658,6 @@ U = {
             }
         }
     },
-
-
 
     /**
      * 在光标后插入文本
@@ -1592,6 +1716,7 @@ U = {
  */
 (() => {
 	Object.prototype.findDeeply = function(callback) {
+	    const typeOf = this.typeOf
 		const flag = typeOf(this)
 		let result
 		if (flag === 'array') {
@@ -1718,6 +1843,7 @@ U = {
 })()
 
 function findDeeplyList (target, callback, arr=[]) {
+    const typeOf = this.typeOf
     const flag = typeOf(target)
 
     if (flag === 'array') {
@@ -1834,32 +1960,6 @@ const EventTarget = (function() {
 		}
 	}
 }()
-
-
-/**
- * 轮询函数【短轮询】（待完善）
- * @param fn       {Function} 轮询条件函数，需要返回Boolean类型的值，来告诉系统是继续轮询还是停止轮询，暂时不支持传递参数，等后面有空用柯里化改写
- * @param callback {Function} 轮询终止后执行的回调函数
- * @param inter    {Number}   轮询间隔，单位ms，默认20ms
- */
-const polling = (() => {
-	let timer = 0,
-		ret
-	function polling(fn, callback inter=20) {
-		if (typeOf(fn) !== 'function') return console.error('polling方法第一个参数需要是函数')
-		if (timer) clearTimeout(timer)
-		timer = setTimeout(() => {
-			if (ret = fn()) {
-				clearTimeout(timer)
-				callback && callback()
-			} else {
-				polling(fn, inter)
-			}
-		}, inter)
-	}
-	return polling
-})()
-
 
 
 

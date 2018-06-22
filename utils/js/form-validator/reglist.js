@@ -8,6 +8,7 @@ export const REGLIST = {
 	UserName: /^[\w|\d]{4,16}$/,
 	Password: /^[\w!@#$%^&*.]{6,16}$/,
 	Mobile: /^1[3|4|5|7|8]\d{9}$/,
+	telephone: /^(\(\d{3,4}\)|\d{3,4}-|\s)?\d{7,14}$/,
 	RealName: /^[\u4E00-\u9FA5\uf900-\ufa2d\w]{4,16}$/,
 	// RealName: /^[\u4e00-\u9fa5|·]{2,16}$|^[a-zA-Z|\s]{2,20}$/,
 	BankNum: /^\d{10,19}$/,
