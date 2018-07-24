@@ -282,7 +282,7 @@
             let result
             if (flag === 'array') {
                 for (let i = 0, item; item = target[i++];) {
-                    result = findDeeply(target[i], callback)
+                    result = findDeeply(item, callback)
                     if (result) return result
                 }
             }
