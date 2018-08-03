@@ -1514,6 +1514,34 @@
         },
 
         /**
+         * 判断是否用户是否是点击操作，还是选择文本
+         * 业务场景，用户点击表格的某一行进入详情页面，但 click 事件是在 keyup 时候触发的，用户有时只是想选择文本而已，却进了详情页，蛋疼的一批
+         * @returns {Function}
+         */
+        judgeClickFactory () {
+            const interval = 40 // 判断的时间间隔，默认 40ms ，两次触发的时间差大于 40ms 则判断用户不是单击操作
+            let count = 1       // 计数，0 - 第一次点击，1 - 第二次点击
+            let startTime = 0   // 记录第一次触发的时间
+            return function () {
+                let diff
+                count = (count + 1) % 2
+                // keydown 时候开始计时
+                if (count === 0) {
+                    startTime = new Date().getTime()
+                    return false
+                }
+
+                // keyup 时候计算时间差，判断是否是 click 操作
+                diff = new Date().getTime() - startTime
+                if (diff > interval) {
+                    return false
+                } else {
+                    return true
+                }
+            }
+        },
+
+        /**
          * 向前补零函数【播放器时长计算等】
          * @param  {Number} num 需要处理的数字
          * @param  {Number} n   需要补的位数
