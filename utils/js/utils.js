@@ -462,7 +462,32 @@
         },
 
 
-
+        /**
+        * 深层数组递归执行某一处理函数
+        * @param target { All Type } 需要进行操作的数据对象
+        * @param filterFunc { Function } 筛选函数，接受当前的对象作为参数，返回一个布尔值
+        * @param callback { Function } 回调函数，接受当前的对象作为参数
+        */
+        function arrayDeeplyHandler(target, filterFunc, callback) {
+            const flag = typeOf(target);
+            // 首先判断筛选条件，是否调用 callback
+            activeCallBack(target, callback);
+            if (flag === 'array') {
+                target.forEach(item => {
+                    arrayDeeplyHandler(item, filterFunc, callback);
+                });
+            } else if (flag === 'object') {
+                for (let k in target) {
+                    arrayDeeplyHandler(target[k], filterFunc, callback);
+                }
+            }
+            // 判断是否调用 callback
+            function activeCallBack (target, callback) {
+                const sign = filterFunc(target);
+                // 满足筛选的条件，就执行 callback
+                sign && typeOf(callback) === 'function' && callback(target);
+            }
+        }
 
 
 
