@@ -2053,18 +2053,17 @@
         },
 
         /*
-         * 获取元素相对页面的offset
+         * 获取某个 DOM 元素相对页面的offset
          * @param el {object} 目标元素
          * @return object 包括offsetLeft和offsetTop
          */
         getOffset (el) {
-            var x = 0,
-                y = 0,
-                parent = null;
-            while (parent = el.offsetParent) {
-                x += el.offsetLeft;
-                y += el.offsetTop;
-                el = parent;
+            let [x, y, parent] = [0, 0, el.parentNode]
+            while (parent != null) {
+                x += el.offsetLeft
+                y += el.offsetTop
+                el = parent
+                parent = el.parentNode
             }
             return {
                 x: x,
@@ -2072,46 +2071,78 @@
             }
         },
 
+
+        /*
+        * 获取目标元素相对于父元素的位置
+        * tips: 如果该元素是隐藏的，则 offset 相关属性无效，为0
+        * @param el {DOMobject}    原生事件对象
+        * @param target {DOMobject} 目标DOM元素
+        * @return object 包括 offsetLeft 和 offsetTop
+        *
+        */
+        getOffsetToParentNode (el, target) {
+            if (!inTargetArea(el, target)) return null
+            const [ targetOffsetWidth, targetOffsetHeight ] = [ target.offsetWidth, target.offsetHeight ]
+            const [ elOffsetWidth, elOffsetHeight ] = [ el.offsetWidth, el.offsetHeight ]
+            let [ top, left, right, bottom ] = [ 0, 0, 0, 0 ]
+            let parent = el.parentNode
+
+            while (parent != null) {
+                top += el.offsetTop
+                left += el.offsetLeft
+                el = parent
+                parent = el.parentNode
+            }
+            right = targetOffsetWidth - elOffsetWidth - left
+            bottom = targetOffsetHeight - elOffsetHeight - top
+            return {
+                top,
+                left,
+                right,
+                bottom
+            }
+        },
+
         /*
          * 获取鼠标当前相对于某个元素的位置
-         * @param e 	   {object}    原生事件对象
-         * @param targetEl {DOMobject} 目标DOM元素
+         * @param e        {object}    原生事件对象
+         * @param target {DOMobject} 目标DOM元素
          * @return object 包括offsetLeft和offsetTop
          *
          * Tips:
-         * 1.offsetWidth/offsetHeight 包括border-width，clientWidth/clientHeight不包括border-width，只是可见区域而已
-         * 2.offsetLeft/offsetTop 是从当前元素边框外缘开始算，一直到定位父元素的距离，clientLeft/clientTop其实就是border-width
+         * 1.offset 相关属性在 display: none 的元素上失效，为0
+         * 2.offsetWidth/offsetHeight 包括border-width，clientWidth/clientHeight不包括border-width，只是可见区域而已
+         * 3.offsetLeft/offsetTop 是从当前元素边框外缘开始算，一直到定位父元素的距离，clientLeft/clientTop其实就是border-width
          */
-        getOffsetInElement(e, targetEl) {
-            var targetElOffset = (function(targetEl) {
-                    return getOffset(targetEl);
-                })(targetEl),
-                left = e.clientX - targetElOffset.x,
-                right = targetEl.clientWidth - left,
-                top = e.clientY - targetElOffset.y,
-                bottom = targetEl.clientHeight - top,
-                ret = {
-                    left: left,
-                    right: right,
-                    top: top,
-                    bottom: bottom
-                };
-            return ret;
+        getOffsetInElement (e, target) {
+            let currentDOM = e.toElement
+            if (!inTargetArea(currentDOM, target)) return null
+            let [ left, top, right, bottom ] = [ e.offsetX, e.offsetY, 0, 0 ]
+            while (currentDOM !== target) {
+                left += currentDOM.offsetLeft
+                top += currentDOM.offsetTop
+                currentDOM = currentDOM.parentNode
+            }
+            right = target.offsetWidth - left
+            bottom = target.offsetHeight - top
+
+            return { top, left, right, bottom }
         },
 
         /**
          * 判断一个DOM元素是否包裹在另一个DOM元素中【父子关系或者层级嵌套都可以】
-         * @param  {Object} DOM   		事件对象中的event.target/或者是需要检测的DOM元素
-         * @param  {Object} targetDOM 	作为限制范围的DOM元素
-         * @return {Boolean}      		true----是包裹关系，false----不是包裹关系
+         * @param  {Object} DOM         事件对象中的event.target/或者是需要检测的DOM元素
+         * @param  {Object} targetDOM   作为限制范围的DOM元素
+         * @return {Boolean}            true----是包裹关系，false----不是包裹关系
          */
-        inTargetArea(DOM, targetDOM) {
-            var parent = null;
-            while(parent = DOM.parentNode) {
-                if (parent === targetDOM) return true;
-                DOM = parent;
+        inTargetArea (DOM, targetDOM) {
+            let parent = DOM.parentNode
+            while (parent != null) {
+                if (parent === targetDOM) return true
+                DOM = parent
+                parent = DOM.parentNode
             }
-            return false;
+            return false
         },
 
         /**
