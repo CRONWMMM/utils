@@ -2115,7 +2115,7 @@
          * 3.offsetLeft/offsetTop 是从当前元素边框外缘开始算，一直到定位父元素的距离，clientLeft/clientTop其实就是border-width
          */
         getOffsetInElement (e, target) {
-            let currentDOM = e.toElement
+            let currentDOM = e.target || e.toElement
             if (!inTargetArea(currentDOM, target)) return null
             let [ left, top, right, bottom ] = [ e.offsetX, e.offsetY, 0, 0 ]
             while (currentDOM !== target) {
