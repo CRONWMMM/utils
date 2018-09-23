@@ -70,25 +70,25 @@
             return map[toString.call(obj)];
         },
         isNumber(obj) {
-            return this.typeOf(obj) === 'number' && !isNaN(obj) ? true : false
+            return this.typeOf(obj) === 'number' && !isNaN(obj)
         },
         isNaN(obj) {
             return obj.toString() === 'NaN'
         },
         isString(obj) {
-            return this.typeOf(obj) === 'string' ? true : false
+            return this.typeOf(obj) === 'string'
         },
         isFunction(obj) {
-            return this.typeOf(obj) === 'function' ? true : false
+            return this.typeOf(obj) === 'function'
         },
         isArray(obj) {
-            return this.typeOf(obj) === 'array' ? true : false
+            return this.typeOf(obj) === 'array'
         },
         isObject(obj) {
-            return this.typeOf(obj) === 'object' ? true : false
+            return this.typeOf(obj) === 'object'
         },
         isUndefined(obj) {
-            return this.typeOf(obj) === 'undefined' ? true : false
+            return this.typeOf(obj) === 'undefined'
         },
 
         /**
