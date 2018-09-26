@@ -70,25 +70,25 @@
             return map[toString.call(obj)];
         },
         isNumber(obj) {
-            return this.typeOf(obj) === 'number' && !isNaN(obj) ? true : false
+            return this.typeOf(obj) === 'number' && !isNaN(obj)
         },
         isNaN(obj) {
             return obj.toString() === 'NaN'
         },
         isString(obj) {
-            return this.typeOf(obj) === 'string' ? true : false
+            return this.typeOf(obj) === 'string'
         },
         isFunction(obj) {
-            return this.typeOf(obj) === 'function' ? true : false
+            return this.typeOf(obj) === 'function'
         },
         isArray(obj) {
-            return this.typeOf(obj) === 'array' ? true : false
+            return this.typeOf(obj) === 'array'
         },
         isObject(obj) {
-            return this.typeOf(obj) === 'object' ? true : false
+            return this.typeOf(obj) === 'object'
         },
         isUndefined(obj) {
-            return this.typeOf(obj) === 'undefined' ? true : false
+            return this.typeOf(obj) === 'undefined'
         },
 
         /**
@@ -702,12 +702,16 @@
          * 判断一个元素是否在目标对象中
          * @param target   待判断的元素
          * @param arr      目标对象
+         * @param cb      【可选】回调函数，接受这个 target 在数组中的索引
          * @returns {boolean}
          */
-        inArray(target, arr) {
+        inArray(target, arr, cb) {
             for (let i = 0,item; i < arr.length; i++) {
                 item = arr[i]
-                if (target === item) return true
+                if (target === item) {
+                    cb && cb(i)
+                    return true
+                }
             }
             return false
         },
@@ -1093,6 +1097,37 @@
                 disc = list.join('') + '%'
             }
             return disc
+        },
+
+        /**
+         * 数字单位转换 元/万元/亿元/万亿
+         * @param num
+         * @returns {{num: number, unit: string}}
+         */
+        unitConvert (num, unit = ["元", "万元", "亿元", "万亿"]) {
+            let dividend = 10000
+            let curentNum = num //转换数字
+            let curentUnit = moneyUnits[0] //转换单位
+            for (let i = 0; i < 4; i++) {
+                curentUnit = moneyUnits[i]
+                if(_strNumSize(curentNum) < 5) break;
+                curentNum = curentNum / dividend
+            }
+            let m = {num: 0, unit: ""}
+            m.num = curentNum.toFixed(2)
+            m.unit = curentUnit
+
+            return m
+
+            function _strNumSize (tempNum) {
+                var stringNum = tempNum.toString()
+                var index = stringNum.indexOf(".")
+                var newNum = stringNum
+                if( index != -1 ) {
+                    newNum = stringNum.substring(0,index)
+                }
+                return newNum.length
+            }
         },
 
 
@@ -2058,18 +2093,23 @@
          * @return object 包括offsetLeft和offsetTop
          */
         getOffset (el) {
-            let [x, y, parent] = [0, 0, el.parentNode]
+            const doc = document.documentElement
+            let [ left, top, right, bottom, parent ] = [0, 0, 0, 0, el.parentNode]
             while (parent != null) {
-                x += el.offsetLeft
-                y += el.offsetTop
+                left += el.offsetLeft
+                top += el.offsetTop
                 el = parent
                 parent = el.parentNode
             }
+            right = doc.offsetWidth - el.offsetWidth - left
+            bottom = doc.offsetHeight - el.offsetHeight - top
             return {
-                x: x,
-                y: y
+                left,
+                top,
+                right,
+                bottom
             }
-        },
+        }
 
 
         /*
@@ -2117,15 +2157,12 @@
         getOffsetInElement (e, target) {
             let currentDOM = e.target || e.toElement
             if (!inTargetArea(currentDOM, target)) return null
-            let [ left, top, right, bottom ] = [ e.offsetX, e.offsetY, 0, 0 ]
-            while (currentDOM !== target) {
-                left += currentDOM.offsetLeft
-                top += currentDOM.offsetTop
-                currentDOM = currentDOM.parentNode
-            }
+            let left, top, right, bottom
+            const { left: x, top: y } = getOffset(target)
+            left = e.clientX - x
+            top = e.clientY - y
             right = target.offsetWidth - left
             bottom = target.offsetHeight - top
-
             return { top, left, right, bottom }
         },
 
