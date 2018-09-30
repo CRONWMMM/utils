@@ -2115,7 +2115,7 @@
         /*
         * 获取目标元素相对于父元素的位置
         * tips: 如果该元素是隐藏的，则 offset 相关属性无效，为0
-        * @param el {DOMobject}    原生事件对象
+        * @param el {DOMobject}    目标（子）DOM元素
         * @param target {DOMobject} 目标DOM元素
         * @return object 包括 offsetLeft 和 offsetTop
         *
