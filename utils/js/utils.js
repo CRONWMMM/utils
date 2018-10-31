@@ -157,11 +157,11 @@
              * 惰性单例，返回的是一个待执行的函数，函数执行再实例化_evt
 
              return function () {
-            if (!_evt) {
-                _evt = new _EventTarget()
-            }
-            return _evt
-        };
+                        if (!_evt) {
+                            _evt = new _EventTarget()
+                        }
+                        return _evt
+                    };
 
              */
 
@@ -173,6 +173,51 @@
             }
             return _evt
         },
+
+
+        /**
+         * 自定义事件
+         * event 对象工厂
+         */
+        class Emitter {
+            constructor () {
+                this.pool = {}
+            }
+
+            on (type, handler) {
+                if (typeof handler !== 'function') return new Error('Emitter-error: Class Emitter 实例监听的必须是一个函数')
+                type = type.toString()
+                let handlerList = this.pool[type]
+                handlerList == null && (handlerList = this.pool[type] = [])
+                handlerList.push(handler)
+            }
+
+            off (type, handler) {
+                type = type.toString()
+                let handlerList = this.pool[type]
+                if (handler == null) {
+                    handlerList[type] = void (0)
+                } else {
+                    for (let i = 0, fn; i < handlerList.length; i++) {
+                        fn = handlerList[i]
+                        if (fn === handler) {
+                            handlerList.splice(i, 1)
+                            break
+                        }
+                    }
+                }
+            }
+
+            trigger (type, data) {
+                type = type.toString()
+                let handlerList = this.pool[type]
+                for (let i = 0, fn; i < handlerList.length; i++) {
+                    fn = handlerList[i]
+                    fn(data)
+                }
+            }
+        }
+
 
         /**
          * 判空函数
@@ -2116,7 +2161,7 @@
         * 获取目标元素相对于父元素的位置
         * tips: 如果该元素是隐藏的，则 offset 相关属性无效，为0
         * @param el {DOMobject}    目标（子）DOM元素
-        * @param target {DOMobject} 目标DOM元素
+        * @param target {DOMobject} 目标DOM元素，不传默认为文档元素
         * @return object 包括 offsetLeft 和 offsetTop
         *
         */
@@ -2127,7 +2172,7 @@
             let [ top, left, right, bottom ] = [ 0, 0, 0, 0 ]
             let parent = el.parentNode
 
-            while (parent != null) {
+            while (parent !== target && parent != null) {
                 top += el.offsetTop
                 left += el.offsetLeft
                 el = parent
@@ -2255,6 +2300,110 @@
         },
 
 
+        DynamicScript: class extends this.Emitter {
+            constructor (list = []) {
+                super()
+                this.loading = false // 正在加载的标识符，未完成之前不能加载别的脚本
+                this.scriptsPool = {}
+                this.loadPool = [] // 需要加载的脚本池
+                this.unLoadPool = [] // 需要卸载的脚本池
+                this.generatorScriptsPool(list)
+            }
+
+            // 根据传入的 list 生成对应的 Script DOM 
+            generatorScriptsPool(list) {
+                const self = this
+                let ret = {}
+                let scriptDOM = null
+                list.forEach(src => {
+                    src = src.toString()
+                    scriptDOM = this.scriptDOM = document.createElement('script')
+                    scriptDOM.type = 'text/javascript'
+                    scriptDOM.onload = scriptDOM.onreadystatechange = function (e) {
+                        self.loading = false
+                        if(!this.readyState || this.readyState=='loaded' || this.readyState=='complete') self._loadSuccess(e)
+                    }
+                    ret[src] = scriptDOM
+                    
+                })
+                this.scriptsPool = ret
+            }
+
+            // 获取当前页面已存在的脚本 DOM 列表
+            getScriptsList() {
+                return [...document.getElementsByTagName('script')]
+            }
+
+            // 加载
+            load(param) {
+                if (Array.isArray(param)) {
+                    this.batchLoad(param)
+                } else if (typeof param === 'string') {
+                    this.singleLoad(param)
+                } else {
+                    throw new Error(`load 方法参数错误`)
+                }
+            }
+
+            // 单源加载
+            singleLoad(src) {
+                src = src.toString()
+                // 还有脚本正在加载，就 return
+                if (this.loading) return false
+                // 已经加载过了，return
+                if (this.hasAdded(src)) return false
+                const DOM = this.scriptsPool[src]
+                if (!DOM) return false
+                DOM.src = src
+                document.body.appendChild(scriptDOM)
+                this.loading = true
+                return true
+            }
+
+            // 多源加载
+            batchLoad(list) {
+                
+            }
+
+            // 单源卸载
+            unload (src) {
+                this.getScriptsList().forEach(dom => {
+                    if (dom.src === String(src)) {
+                        document.body.removeChild(dom)
+                    }
+                })
+            }
+
+            // 检测传入的 src 是否已经加载到页面上
+            hasAdded(src) {
+                const existScriptsList = this.getScriptsList()
+                let [ DOM, result ] = [ null, false ]
+                for (let i = 0; i < existScriptsList.length; i++) {
+                    DOM = existScriptsList[i]
+                    if (DOM.src === String(src)) {
+                        result = true
+                        break
+                    }
+                }
+                return result
+            }
+
+            _loadSuccess(e) {
+
+            }
+
+            // 工具函数，检测目标是否在给定数组内
+            _inArray(target, arr, cb) {
+                for (let i = 0,item; i < arr.length; i++) {
+                    item = arr[i]
+                    if (target === item) {
+                        cb && cb(i)
+                        return true
+                    }
+                }
+                return false
+            }
+        }
 
 
 
