@@ -2158,28 +2158,23 @@
 
 
         /*
-        * 获取目标元素相对于父元素的位置
-        * tips: 如果该元素是隐藏的，则 offset 相关属性无效，为0
-        * @param el {DOMobject}    目标（子）DOM元素
-        * @param target {DOMobject} 目标DOM元素，不传默认为文档元素
-        * @return object 包括 offsetLeft 和 offsetTop
-        *
-        */
-        getOffsetToParentNode (el, target) {
+         * 获取目标元素相对于目标祖先元素的位置
+         * tips: 如果该元素是隐藏的，则 offset 相关属性无效，为0
+         * @param el {DOMobject}    目标（子）DOM元素
+         * @param target {DOMobject} 目标DOM元素，不传默认为文档元素
+         * @return object 包括 offsetLeft 和 offsetTop
+         *
+         */
+        getOffsetToParentNode (el, target = document.documentElement) {
             if (!inTargetArea(el, target)) return null
             const [ targetOffsetWidth, targetOffsetHeight ] = [ target.offsetWidth, target.offsetHeight ]
             const [ elOffsetWidth, elOffsetHeight ] = [ el.offsetWidth, el.offsetHeight ]
-            let [ top, left, right, bottom ] = [ 0, 0, 0, 0 ]
-            let parent = el.parentNode
-
-            while (parent !== target && parent != null) {
-                top += el.offsetTop
-                left += el.offsetLeft
-                el = parent
-                parent = el.parentNode
-            }
-            right = targetOffsetWidth - elOffsetWidth - left
-            bottom = targetOffsetHeight - elOffsetHeight - top
+            let elPosition = el.getBoundingClientRect()
+            let targetPosition = target.getBoundingClientRect()
+            let top = elPosition.top - targetPosition.top
+            let left = elPosition.left - targetPosition.left
+            let right = targetOffsetWidth - elOffsetWidth - left
+            let bottom = targetOffsetHeight - elOffsetHeight - top
             return {
                 top,
                 left,
@@ -2187,6 +2182,7 @@
                 bottom
             }
         },
+
 
         /*
          * 获取鼠标当前相对于某个元素的位置
