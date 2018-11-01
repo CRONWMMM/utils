@@ -29,15 +29,17 @@
             }
         },
         mounted () {
-            this.initEl()
-            this.initEvt()
-            this.initElSize()
-            this.cacheStartPosition()
+            // 延迟二十秒，等待页面布局完成，在进行相关初始化
+            setTimeout(() => {
+                this.initEl()
+                this.initEvt()
+                this.initElSize()
+                this.cacheStartPosition()
+            }, 20)
         },
         data () {
             return {
                 startPosition: null,
-                diffPosition: null,
                 scrollTop: 0,
                 slotStyle: {},
                 floating: false // 当前图钉的是否出于浮动状态
@@ -56,10 +58,9 @@
                     } else {
                         this.floating = true
                     }
-                    // 元素当前的 top 值等于滚动距离加指定偏移距离减去定位父元素的初始距离
-                    const top = this.scrollTop + offsetTop - this.diffPosition.top
+                    const top = this.parentElRelativeToPagePosition.top + offsetTop
                     return Object.assign({
-                        position: 'absolute',
+                        position: 'fixed',
                         top: `${top}px`,
                         zIndex
                     }, this.slotStyle)
@@ -94,8 +95,7 @@
             // 缓存初始位置
             cacheStartPosition () {
                 this.startPosition = getOffsetToParentNode(this.el, this.parentEl)
-                // 缓存 el 的 offsetParent 定位父元素相对于目标元素的初始位置，后面计算要用
-                this.diffPosition = getOffsetToParentNode(this.el.offsetParent, this.parentEl)
+                this.parentElRelativeToPagePosition = getOffsetToParentNode(this.parentEl)
             },
 
             // 初始化事件
