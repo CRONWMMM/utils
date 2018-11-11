@@ -1057,11 +1057,12 @@
          * @param separator   {Boolean} 是否要分隔符，默认不需要
          * @returns {string}
          */
-        get_suffix(filename, separator=false) {
+        getSuffix(filename, separator=false) {
             let pos = separator ? filename.lastIndexOf('.') : filename.lastIndexOf('.') + 1,
                 suffix = ''
             if (pos != -1) {
-                suffix = filename.substring(pos)
+                // 截取后缀，并且去除非单词的后缀字符
+                suffix = filename.substring(pos).replace(/\W/, '')
             }
             return suffix
         },
