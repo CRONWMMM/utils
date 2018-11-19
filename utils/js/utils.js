@@ -1627,12 +1627,19 @@
             const interval = 200 // 判断的时间间隔，默认 200ms ，两次触发的时间差大于 200ms 则判断用户不是单击操作
             let count = 1       // 计数，0 - 第一次点击，1 - 第二次点击
             let startTime = 0   // 记录第一次触发的时间
+            let time = 0        // 计时器句柄
             return function () {
                 let diff
                 count = (count + 1) % 2
                 // mousedown 时候开始计时
                 if (count === 0) {
                     startTime = new Date().getTime()
+                    // 超时重置
+                    if (time) clearTimeout(time)
+                    time = setTimeout(() => {
+                        count = 1
+                        startTime = 0
+                    }, interval)
                     return false
                 }
 
