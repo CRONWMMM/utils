@@ -1390,9 +1390,10 @@
          * @param name {string} url的key
          * @returns {string}
          */
-        getUrlParam(name) {
-            let name = encodeURIComponent(name),
-                arr = new RegExp("(^|&)" + name + "=([^&]*)(&|$)").exec(window.location.search.substr(1));
+        getUrlParam (name) {
+            name = encodeURIComponent(name)
+            const searchString = window.location.href.split('?').pop()
+            let arr = new RegExp("(^|&)" + name + "=([^&]*)(&|$)").exec(searchString);
             if(arr){
                 return RegExp.$2;
             }else{
