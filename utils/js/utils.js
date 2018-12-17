@@ -1407,35 +1407,48 @@
         /**
          * queryString和url进行拼接
          * @param data {object} 需要传递的键值对序列
+         * @param encode {Boolean} 是否需要转义
          * @returns {string} 处理完毕的queryString
          *  类似：a=1&b=2&c=3
          */
-        setUrlParam(data) {
-            let url = '';
+        setUrlParam(data, encode = false) {
+            let url = ''
             for (let k in data) {
                 let value = data[k] !== undefined ? data[k] : ''
-                url += '&' + k + '=' + encodeURIComponent(value)
+                encode && (value = encodeURIComponent(value))
             }
-            return url ? url.substring(1) : '';
+            return url ? url.substring(1) : ''
+        },
+
+
+        /**
+         * 以 key-value 的对象形式获取 queryString
+         * @param {String}  需要检测的地址字符串
+         * @returns {Object} queryString 的 key-value 对象
+         */
+        getUrlParamObj (str = window.location.href) {
+            let ret = {}
+            const searchString = str.split('?').pop()
+            const keyValueArr = searchString.split('&')
+            keyValueArr.forEach(item => {
+                const arr = item.split('=')
+                const key = arr[0]
+                const value = arr[1]
+                ret[key] = value
+            })
+            return this.deleteObjEmpty(ret)
         },
 
 
         /**
          * 判断一串url地址是否带有queryString
-         * @param str 			{String}  需要检测的地址字符串
-         * @param canBeforeHash	{Boolean} 是否可以携带hash值，默认false，如果开启，则类似于 "http://localhost/index-debug.html?v=20180208#/bbzx/xdrw/details" queryString写在hash之前的url亦可以通过
-         * @returns 			{Boolean} 是否携带queryString
+         * @param str           {String}  需要检测的地址字符串
+         * @returns             {Boolean} 是否携带queryString
          *  类似：a=1&b=2&c=3
          */
-        hasQueryString(str, canBeforeHash) {
-            let reg = null,
-                canBeforeHash = canBeforeHash != null ? canBeforeHash : false;
-            if (!canBeforeHash) {
-                reg = /\?\w+=\w+/g;
-            } else {
-                reg = /\?\w+=\w+[&|^]/g;
-            }
-            return reg.test(str);
+        hasQueryString(str = window.location.href) {
+            let reg = /\?/
+            return reg.test(str)
         },
 
 
