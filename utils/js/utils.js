@@ -2159,15 +2159,16 @@
          * 获取某个 DOM 元素相对页面的offset
          * @param el {object} 目标元素
          * @return object 包括offsetLeft和offsetTop
+         * 几种元素尺寸/位置的获取方式，具体可见：http://www.ruanyifeng.com/blog/2009/09/find_element_s_position_using_javascript.html
          */
         getOffset (el) {
             const doc = document.documentElement
-            let [ left, top, right, bottom, parent ] = [0, 0, 0, 0, el.parentNode]
+            let [ left, top, right, bottom, parent ] = [0, 0, 0, 0, el.offsetParent]
             while (parent != null) {
                 left += el.offsetLeft
                 top += el.offsetTop
                 el = parent
-                parent = el.parentNode
+                parent = el.offsetParent
             }
             right = doc.offsetWidth - el.offsetWidth - left
             bottom = doc.offsetHeight - el.offsetHeight - top
@@ -2328,7 +2329,7 @@
                 this.generatorScriptsPool(list)
             }
 
-            // 根据传入的 list 生成对应的 Script DOM 
+            // 根据传入的 list 生成对应的 Script DOM
             generatorScriptsPool(list) {
                 const self = this
                 let ret = {}
@@ -2342,7 +2343,7 @@
                         if(!this.readyState || this.readyState=='loaded' || this.readyState=='complete') self._loadSuccess(e)
                     }
                     ret[src] = scriptDOM
-                    
+
                 })
                 this.scriptsPool = ret
             }
@@ -2380,7 +2381,7 @@
 
             // 多源加载
             batchLoad(list) {
-                
+
             }
 
             // 单源卸载
