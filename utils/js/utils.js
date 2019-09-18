@@ -1755,6 +1755,33 @@
         },
 
         /**
+         * 获取图片原始尺寸信息
+         * @param image 图片对象
+         * @returns {Promise<any>}
+         * @private
+         */
+        getImageOriginSize (image) {
+            const src = typeof image === 'object' ? image.src : image;
+
+            return new Promise((resolve, reject) => {
+                const self = this;
+                const image = new Image();
+
+                image.onload = function () {
+                    const { width, height } = image;
+                    resolve({
+                        width,
+                        height
+                    });
+                };
+                image.onerror = function (e) {
+                    reject(e);
+                };
+                image.src = src;
+            });
+        },
+
+        /**
          * base64转换二进制
          * @param  {[type]}   base64   [description]
          * @param  {Function} callback [description]
@@ -2163,15 +2190,28 @@
          */
         getOffset (el) {
             const doc = document.documentElement
+            const docClientWidth = doc.clientWidth
+            const docClientHeight = doc.clientHeight
             let [ left, top, right, bottom, parent ] = [0, 0, 0, 0, el.offsetParent]
-            while (parent != null) {
-                left += el.offsetLeft
-                top += el.offsetTop
-                el = parent
-                parent = el.offsetParent
+
+            // 如果当前浏览器原生支持 getBoundingClientRect 方法，就优先使用 getBoundingClientRect
+            if (doc.getBoundingClientRect) {
+                let positionInfo = el.getBoundingClientRect()
+                left = positionInfo.left
+                top = positionInfo.top
+                right = docClientWidth - positionInfo.right
+                bottom = docClientHeight - positionInfo.bottom
+            } else {
+                while (parent != null) {
+                    left += el.offsetLeft
+                    top += el.offsetTop
+                    el = parent
+                    parent = el.offsetParent
+                }
+                right = doc.offsetWidth - el.offsetWidth - left
+                bottom = doc.offsetHeight - el.offsetHeight - top
             }
-            right = doc.offsetWidth - el.offsetWidth - left
-            bottom = doc.offsetHeight - el.offsetHeight - top
+
             return {
                 left,
                 top,
@@ -2237,6 +2277,7 @@
          * @return {Boolean}            true----是包裹关系，false----不是包裹关系
          */
         inTargetArea (DOM, targetDOM) {
+            if (DOM === targetDOM) return true
             let parent = DOM.parentNode
             while (parent != null) {
                 if (parent === targetDOM) return true
