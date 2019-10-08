@@ -1782,6 +1782,20 @@
         },
 
         /**
+         * 文件转换为 base64
+         * @param  {File} file 图片文件
+         * @return {Promise}
+         */
+        getBase64 (file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        },
+
+        /**
          * base64转换二进制
          * @param  {[type]}   base64   [description]
          * @param  {Function} callback [description]
