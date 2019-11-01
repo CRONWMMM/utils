@@ -1122,6 +1122,42 @@
             }
         },
 
+        // 数字四舍五入
+        // num为传入的值，n为保留的小数位
+        formatNumber (num, n = 0) {
+            let result;
+            num = Number(num);
+            // 如果不是数字，直接 return false
+            if (isNaN(num)) return false;
+
+            // 是整数的情况
+            if (num.toString().indexOf('.') < 0) {
+                if (n) {
+                    result = `${String(num)}.`;
+                    for (let i = 0; i < n; i++) {
+                        result += '0';
+                    }
+                } else {
+                    result = num;
+                }
+                return result;
+            }
+
+            let f = Math.round(num * Math.pow(10, n)) / Math.pow(10, n); // n 幂
+            result = f.toString();
+            let rs = result.indexOf('.');
+
+            // 判定如果是整数，增加小数点再补0
+            if (rs < 0) {
+                rs = result.length;
+                result += '.';
+            }
+            while (result.length <= rs + n) {
+                result += '0';
+            }
+            return Number(result);
+        },
+
         /**
          * 计算折扣函数，此函数属于业务工具函数，不具有通用性
          * @param originNum   折扣小数
@@ -1411,13 +1447,14 @@
          * @returns {string} 处理完毕的queryString
          *  类似：a=1&b=2&c=3
          */
-        setUrlParam(data, encode = false) {
+        setUrlParam (data, encode = false) {
             let url = ''
             for (let k in data) {
                 let value = data[k] !== undefined ? data[k] : ''
                 encode && (value = encodeURIComponent(value))
+                url += `${k}=${value}&`
             }
-            return url ? url.substring(1) : ''
+            return url ? url.slice(0, url.length - 1) : ''
         },
 
 
