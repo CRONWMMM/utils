@@ -670,6 +670,31 @@
             }
         },
 
+        /**
+         * 判断两个时间的大小关系
+         * @param startTime String 格式：hh:mm:ss
+         * @param endTime String 格式：hh:mm:ss
+         * @returns Boolean true: endTime 大于 startTime; false: endTime 小于 startTime
+         */
+        judgeTime (startTime, endTime) {
+            const startTimeArr = startTime.split(':');
+            const endTimeArr = endTime.split(':');
+            const num1 = Number(startTimeArr.shift());
+            const num2 = Number(endTimeArr.shift());
+
+            if (num1 > num2) {
+                return false;
+            } else if (num1 < num2) {
+                return true;
+            } else {
+                // 这种情况是最后的秒数也相同
+                if (!startTimeArr.length && !endTimeArr.length) return true;
+                startTime = startTimeArr.join(':');
+                endTime = endTimeArr.join(':');
+                return this.judgeTime(startTime, endTime);
+            }
+        },
+
 
         /* 对象操作 -------------------------------------------------------------------------------------- */
         /**
