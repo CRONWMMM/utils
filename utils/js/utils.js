@@ -535,6 +535,24 @@
         }
 
 
+        // 数据清洗
+        function cleanData(data, exclude = []) {
+            if (Array.isArray(data)) {
+                for (let i = 0, item; i < data.length; i++) {
+                    item = data[i];
+                    this.cleanData(item, data);
+                }
+            } else if (typeof data === 'object' && data != null) {
+                for (let k in data) {
+                    if (typeof data[k] === 'string' && exclude.indexOf(k) === -1) {
+                        data[k] = '';
+                    } else {
+                        this.cleanData(data[k]);
+                    }
+                }
+            }
+        },
+
 
         /* 原生方法兼容 -------------------------------------------------------------------------------------- */
         /**
