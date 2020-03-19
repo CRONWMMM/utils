@@ -51,31 +51,13 @@
 			}
 		},
 		watch: {
-			show(val, oldVal) {
-				if (val === oldVal) return;
+			show(val) {
+				if (val) this.opacity = 1;
+				else this.opacity = 0;
 				this.visible = val;
-
 			},
-			visible(val, oldVal) {
-				if (val === oldVal) return;
-				if (val) {
-					if (this.animate) {
-						setTimeout(() => {
-							this.opacity = 1;
-						}, 10);
-					} else {
-						this.opacity = 1;
-					}
-				} else {
-					this.opacity = 0;
-					if (this.animate) {
-						setTimeout(() => {
-							this.$emit('toggle', val);
-						}, this.time);
-					} else {
-						this.$emit('toggle', val);
-					}
-				}
+			visible(val) {
+				this.$emit('toggle', val);
 			}
 		}
 	}
@@ -92,4 +74,3 @@
 		background-color: rgba(0, 0, 0, 0.6);
 	}
 </style>
-
