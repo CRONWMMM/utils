@@ -246,6 +246,42 @@
         },
 
         /**
+         * 判断两个对象是否一样（注意，一样不是相等）
+         * 1. 如果是非引用类型的值，直接使用全等比较
+         * 2. 如果是数组或对象，则会先比较引用指针是否一一致
+         * 3. 引用指针不一致，再比较每一项是否相同
+         *
+         * @param target {All data types} 参照对象
+         * @param obj {All data types} 比较对象
+         * @returns {*}
+         */
+        function isEqual(target, obj) {
+            if (typeof target !== typeof obj) {
+                return false
+            } else if (typeof target === 'object') {
+                if (target === obj) { // 先比较引用
+                    return true
+                } else if (Array.isArray(target)) { // 数组
+                    if (target.length !== obj.length) { // 长度不同直接 return false
+                        return false
+                    } else { // 否则依次比较每一项
+                        return target.every((item, i) => isEqual(item, obj[i]))
+                    }
+                } else { // 对象
+                    const targetKeyList = Object.keys(target)
+                    const objKeyList = Object.keys(obj)
+                    if (targetKeyList.length !== objKeyList.length) { // 如果 keyList 的长度不同直接 return false
+                        return false
+                    } else {
+                        return targetKeyList.every((key) => isEqual(target[key], obj[key]))
+                    }
+                }
+            } else {
+                return target === obj
+            }
+        }
+
+        /**
          * 辅助绑定函数
          * 原生bind方法是使用柯里化的方式实现的，这边只是简化模式
          * @param  {Function} fn  [description]
@@ -1375,8 +1411,45 @@
 
 
 
+        /* 浏览器操作 ------------------------------------------------------------------------------------------------------- */
+        /**
+         * 浏览器全屏
+         */
+        function fullScreen() {
+            var docElm = document.documentElement;
+            //W3C
+            if (docElm.requestFullscreen) {
+                docElm.requestFullscreen();
+            }
+            //FireFox
+            else if (docElm.mozRequestFullScreen) {
+                docElm.mozRequestFullScreen();
+            }
+            //Chrome等
+            else if (docElm.webkitRequestFullScreen) {
+                docElm.webkitRequestFullScreen();
+            }
+            //IE11
+            else if (docElm.msRequestFullscreen) {
+                docElm.msRequestFullscreen();
+            }
+        }
 
 
+        /**
+         * 取消浏览器全屏
+         */
+        function normalScreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitCancelFullScreen) {
+                document.webkitCancelFullScreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        }
 
 
 
