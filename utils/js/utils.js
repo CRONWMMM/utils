@@ -18,6 +18,8 @@
 
 
 
+import {typeOf} from "../../../umi-blog-admin/src/utils/utils";
+
 ;((global, factory) => {
 
 	"use strict"
@@ -1275,6 +1277,8 @@
                 curentNum = curentNum / dividend
             }
             let m = {num: 0, unit: ""}
+
+
             m.num = curentNum.toFixed(2)
             m.unit = curentUnit
 
@@ -1364,12 +1368,11 @@
          * @param value {string} value
          */
         setStorage (key, value) {
-            if (!window.localStorage)
-                throw new Error('大兄弟，你的浏览器不支持localStorage');
-            const typeOf = this.typeOf
-            var storage = window.localStorage,
-                key = typeOf(key) === 'string' ? key : key.toString(),
-                value = typeOf(value) === 'string' ? value : JSON.stringify(value);
+            if (!window.localStorage) throw new Error('你的浏览器不支持localStorage');
+            const typeOf = this.typeOf;
+            const storage = window.localStorage;
+            key = typeOf(key) === 'string' ? key : key.toString();
+            value = typeOf(value) === 'string' ? value : JSON.stringify(value);
             storage.setItem(key, value);
         },
 
@@ -1378,13 +1381,16 @@
          * @param key   {string} key
          */
         getStorage (key) {
-            if (!window.localStorage)
-                throw new Error('大兄弟，你的浏览器不支持localStorage');
-            const typeOf = this.typeOf
-            var storage = window.localStorage,
-                key = typeOf(key) === 'string' ? key : key.toString(),
-                data = storage.getItem(key);
-            return !!data ? JSON.parse(data) : null;
+            if (!window.localStorage) throw new Error('你的浏览器不支持localStorage');
+            const typeOf = this.typeOf;
+            const storage = window.localStorage;
+            key = typeOf(key) === 'string' ? key : key.toString();
+            const value = storage.getItem(key);
+            try {
+                return value ? JSON.parse(value) : null;
+            } catch (e) {
+                return value || null;
+            }
         },
 
         /**
